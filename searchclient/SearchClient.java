@@ -15,9 +15,9 @@ public class SearchClient {
 	//public static int MAX_ROW = 70;
 	//public static int MAX_COL = 70;
 	//public boolean[][] walls;// = new boolean[MAX_ROW][MAX_COL];
-	public char[][] goals; // = new char[MAX_ROW][MAX_COL];
-	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<ArrayList<Boolean>>();
-//	public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
+	//public char[][] goals; // = new char[MAX_ROW][MAX_COL];
+	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
+	public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
@@ -36,18 +36,11 @@ public class SearchClient {
 		int maxCol = 70;
 
 
-
-
-		//walls = new boolean[maxRow][maxCol];
-		goals = new char[maxRow][maxCol];
-
 		this.initialState = new Node(null, maxRow, maxCol);
 
-		System.err.println("HERE MADDIEHIHIHIHIHIHIHIHI");
-
 		while (!line.equals("")) {
-			System.err.println("HERE KARINAHIHIHIHIHIHIHIHI");
 			walls.add(new ArrayList<Boolean>());
+			goals.add(new ArrayList<Character>());
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
@@ -55,13 +48,8 @@ public class SearchClient {
 					//changed from this.intialstate.walls because walls is no longer an attribute of initalstate
 					//this.walls[row][col] = true;
 					//changed walls to nested arraylist -access row and then add boolean to end of list
-					//need to initialize array list for row
-					/*if(walls.get(row) == null){
-						System.err.println("here");
-						walls.set(row,new ArrayList<Boolean>());
-					}*/
 					walls.get(row).add(true);
-
+					goals.get(row).add('*');
 				}
 				else {
 					walls.get(row).add(false);
@@ -74,26 +62,46 @@ public class SearchClient {
 						agentFound = true;
 						this.initialState.agentRow = row;
 						this.initialState.agentCol = col;
-						} else if ('A' <= chr && chr <= 'Z') { // Box.
-							this.initialState.boxes[row][col] = chr;
-						} else if ('a' <= chr && chr <= 'z') { // Goal.
-							//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
-							this.goals[row][col] = chr;
-						} else if (chr == ' ') {
-							// Free space.
-						} else {
-							System.err.println("Error, read invalid level character: " + (int) chr);
-							System.exit(1);
-						}
+						goals.get(row).add('*');
+					} else if ('A' <= chr && chr <= 'Z') { // Box.
+						this.initialState.boxes[row][col] = chr;
+						goals.get(row).add('*');
+					} else if ('a' <= chr && chr <= 'z') { // Goal.
+						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
+						//this.goals[row][col] = chr;
+						goals.get(row).add(chr);
+					} else if (chr == ' ') {
+						// Free space.
+						goals.get(row).add('*');
+					} else {
+						System.err.println("Error, read invalid level character: " + (int) chr);
+						System.exit(1);
+					}
 				}
 			}
-			System.err.println("HERE got through conditions");
 			line = serverMessages.readLine();
-			System.err.println("read another line");
 			row++;
-
-			System.err.println("new row");
 		}
+		for (int i = 0; i < row; i++) {
+			//System.err.println("ROW:" + i);
+			for (int j = 0; j < goals.get(0).size(); j++) {
+				//System.err.println("COL:" + j);
+				System.err.print(goals.get(i).get(j));
+			}
+			System.err.println();
+		}
+
+		/*
+		for (int i = 0; i < row; i++) {
+			//System.err.println("ROW:" + i);
+			for (int j = 0; j < walls.get(0).size(); j++) {
+				//System.err.println("COL:" + j);
+				System.err.print(walls.get(i).get(j));
+			}
+			System.err.println();
+		}
+		*/
+
 	}
 
 	public LinkedList<Node> Search(Strategy strategy) throws IOException {

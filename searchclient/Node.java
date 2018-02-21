@@ -62,10 +62,10 @@ public class Node {
 	}
 
 	//added goals as an argument as it is no longer an attribute of node
-	public boolean isGoalState(char[][] goals) {
+	public boolean isGoalState(ArrayList<ArrayList<Character>> goals) {
 		for (int row = 1; row < maxRow - 1; row++) {
 			for (int col = 1; col < maxCol - 1; col++) {
-				char g = goals[row][col];
+				char g = goals.get(row).get(col);//[row][col];
 				char b = Character.toLowerCase(boxes[row][col]);
 				if (g > 0 && b != g) {
 					return false;
