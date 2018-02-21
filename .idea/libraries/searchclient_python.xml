@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="searchclient_python">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/sampleclients/searchclient_python.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
