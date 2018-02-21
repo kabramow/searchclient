@@ -77,7 +77,7 @@ public class Node {
 
 	//add walls as an argument bc walls is no longer an attribute of node and it is
 	//required for
-	public ArrayList<Node> getExpandedNodes(boolean[][] walls) {
+	public ArrayList<Node> getExpandedNodes(ArrayList<ArrayList<Boolean>> walls) {
 		ArrayList<Node> expandedNodes = new ArrayList<Node>(Command.EVERY.length);
 		for (Command c : Command.EVERY) {
 			// Determine applicability of action
@@ -135,8 +135,8 @@ public class Node {
 	}
 
 	//added walls as argument because walls is no longer an attribute of node
-	private boolean cellIsFree(int row, int col, boolean[][] walls) {
-		return !walls[row][col] && this.boxes[row][col] == 0;
+	private boolean cellIsFree(int row, int col, ArrayList<ArrayList<Boolean>> walls) {
+		return !walls.get(row).get(col) && this.boxes[row][col] == 0;
 	}
 
 	private boolean boxAt(int row, int col) {

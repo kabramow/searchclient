@@ -14,9 +14,9 @@ public class SearchClient {
 	public Node initialState;
 	//public static int MAX_ROW = 70;
 	//public static int MAX_COL = 70;
-	public boolean[][] walls;// = new boolean[MAX_ROW][MAX_COL];
+	//public boolean[][] walls;// = new boolean[MAX_ROW][MAX_COL];
 	public char[][] goals; // = new char[MAX_ROW][MAX_COL];
-//	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
+	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<ArrayList<Boolean>>();
 //	public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
@@ -35,62 +35,63 @@ public class SearchClient {
 		int maxRow = 70;
 		int maxCol = 70;
 
-		//this is finding the maxRow and maxCol for the grid - it assumes that not all columns are
-		//the same length
-		//while this function is O(n^2) it only runs once so it should not cause significant overhead
-		//whereas using an ArrayList would cause more memory usage in future iterations
-		//String countingLine = countServerMessages.readLine();
-//		while (!line.equals("")) {
-//
-//			if (maxCol < line.length()){
-//				maxCol = line.length();
-//			}
-//			System.err.println("Row is " + maxRow + " col is " + maxCol);
-//			line = serverMessages.readLine();
-//			maxRow++;
-//		}
 
-		walls = new boolean[maxRow][maxCol];
+
+
+		//walls = new boolean[maxRow][maxCol];
 		goals = new char[maxRow][maxCol];
 
 		this.initialState = new Node(null, maxRow, maxCol);
 
 		System.err.println("HERE MADDIEHIHIHIHIHIHIHIHI");
-//		serverMessages.reset();
-//		line = serverMessages.readLine();
 
 		while (!line.equals("")) {
 			System.err.println("HERE KARINAHIHIHIHIHIHIHIHI");
+			walls.add(new ArrayList<Boolean>());
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
 				if (chr == '+') { // Wall.
 					//changed from this.intialstate.walls because walls is no longer an attribute of initalstate
-					this.walls[row][col] = true;
-				} else if ('0' <= chr && chr <= '9') { // Agent.
-					if (agentFound) {
-						System.err.println("Error, not a single agent level");
-						System.exit(1);
-					}
-					agentFound = true;
-					this.initialState.agentRow = row;
-					this.initialState.agentCol = col;
-				} else if ('A' <= chr && chr <= 'Z') { // Box.
-					this.initialState.boxes[row][col] = chr;
-				} else if ('a' <= chr && chr <= 'z') { // Goal.
-					//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
-					this.goals[row][col] = chr;
-				} else if (chr == ' ') {
-					// Free space.
-				} else {
-					System.err.println("Error, read invalid level character: " + (int) chr);
-					System.exit(1);
+					//this.walls[row][col] = true;
+					//changed walls to nested arraylist -access row and then add boolean to end of list
+					//need to initialize array list for row
+					/*if(walls.get(row) == null){
+						System.err.println("here");
+						walls.set(row,new ArrayList<Boolean>());
+					}*/
+					walls.get(row).add(true);
+
+				}
+				else {
+					walls.get(row).add(false);
+
+					if ('0' <= chr && chr <= '9') { // Agent.
+						if (agentFound) {
+							System.err.println("Error, not a single agent level");
+							System.exit(1);
+						}
+						agentFound = true;
+						this.initialState.agentRow = row;
+						this.initialState.agentCol = col;
+						} else if ('A' <= chr && chr <= 'Z') { // Box.
+							this.initialState.boxes[row][col] = chr;
+						} else if ('a' <= chr && chr <= 'z') { // Goal.
+							//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
+							this.goals[row][col] = chr;
+						} else if (chr == ' ') {
+							// Free space.
+						} else {
+							System.err.println("Error, read invalid level character: " + (int) chr);
+							System.exit(1);
+						}
 				}
 			}
 			System.err.println("HERE got through conditions");
 			line = serverMessages.readLine();
 			System.err.println("read another line");
 			row++;
+
 			System.err.println("new row");
 		}
 	}
