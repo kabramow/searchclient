@@ -49,7 +49,7 @@ public class SearchClient {
 					//this.walls[row][col] = true;
 					//changed walls to nested arraylist -access row and then add boolean to end of list
 					walls.get(row).add(true);
-					goals.get(row).add('*');
+					goals.get(row).add('\u0000');
 				}
 				else {
 					walls.get(row).add(false);
@@ -62,17 +62,17 @@ public class SearchClient {
 						agentFound = true;
 						this.initialState.agentRow = row;
 						this.initialState.agentCol = col;
-						goals.get(row).add('*');
+						goals.get(row).add('\u0000');
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
 						this.initialState.boxes[row][col] = chr;
-						goals.get(row).add('*');
+						goals.get(row).add('\u0000');
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
 						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
 						//this.goals[row][col] = chr;
 						goals.get(row).add(chr);
 					} else if (chr == ' ') {
 						// Free space.
-						goals.get(row).add('*');
+						goals.get(row).add('\u0000');
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
