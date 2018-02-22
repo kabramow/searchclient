@@ -41,6 +41,7 @@ public class SearchClient {
 		while (!line.equals("")) {
 			walls.add(new ArrayList<Boolean>());
 			goals.add(new ArrayList<Character>());
+			this.initialState.boxes.add(new ArrayList<>());
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
@@ -50,6 +51,7 @@ public class SearchClient {
 					//changed walls to nested arraylist -access row and then add boolean to end of list
 					walls.get(row).add(true);
 					goals.get(row).add('\u0000');
+					this.initialState.boxes.get(row).add('\u0000');
 				}
 				else {
 					walls.get(row).add(false);
@@ -63,16 +65,19 @@ public class SearchClient {
 						this.initialState.agentRow = row;
 						this.initialState.agentCol = col;
 						goals.get(row).add('\u0000');
+						this.initialState.boxes.get(row).add('\u0000');
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
-						this.initialState.boxes[row][col] = chr;
+						this.initialState.boxes.get(row).add(chr);
 						goals.get(row).add('\u0000');
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
 						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
 						//this.goals[row][col] = chr;
 						goals.get(row).add(chr);
+						this.initialState.boxes.get(row).add('\u0000');
 					} else if (chr == ' ') {
 						// Free space.
 						goals.get(row).add('\u0000');
+						this.initialState.boxes.get(row).add('\u0000');
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
@@ -87,6 +92,18 @@ public class SearchClient {
 			for (int j = 0; j < goals.get(0).size(); j++) {
 				//System.err.println("COL:" + j);
 				System.err.print(goals.get(i).get(j));
+			}
+			System.err.println();
+		}
+
+		for (int i = 0; i < row; i++) {
+			//System.err.println("ROW:" + i);
+			for (int j = 0; j < this.initialState.boxes.get(0).size(); j++) {
+				//System.err.println("COL:" + j);
+				if(this.initialState.boxes.get(i).get(j) == '\u0000'){
+					System.err.print('*');
+				}
+				System.err.print(this.initialState.boxes.get(i).get(j));
 			}
 			System.err.println();
 		}

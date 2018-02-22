@@ -1,10 +1,6 @@
 package searchclient;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.Random;
+import java.util.*;
 
 import searchclient.Command.Type;
 
@@ -32,7 +28,8 @@ public class Node {
 	//
 
 	//got rid of goals and walls as attributes of node and moved them to attributes of search client
-	public char[][] boxes; //= new char[MAX_ROW][MAX_COL];
+	//public char[][] boxes; //= new char[MAX_ROW][MAX_COL];
+	public ArrayList<ArrayList<Character>> boxes;
 
 	public Node parent;
 	public Command action;
@@ -43,9 +40,10 @@ public class Node {
 
 	public Node(Node parent, int maxRow, int maxCol) {
 		this.parent = parent;
-		boxes = new char[maxRow][maxCol];
-		this.maxRow = maxRow;
-		this.maxCol = maxCol;
+		//boxes = new char[maxRow][maxCol];
+		boxes = new ArrayList<>();
+		//this.maxRow = maxRow;
+		//this.maxCol = maxCol;
 		if (parent == null) {
 			this.g = 0;
 		} else {
@@ -66,7 +64,8 @@ public class Node {
 		for (int row = 1; row < goals.size() - 1; row++) {
 			for (int col = 1; col < goals.get(0).size() - 1; col++) {
 				char g = goals.get(row).get(col);//[row][col];
-				char b = Character.toLowerCase(boxes[row][col]);
+				//char b = Character.toLowerCase(boxes[row][col]);
+				char b = Character.toLowerCase(boxes.get(row).get(col));
 				if (g > 0 && b != g) {
 					//System.err.println("G: " + g + " B: " + b);
 					return false;
@@ -107,8 +106,25 @@ public class Node {
 						n.action = c;
 						n.agentRow = newAgentRow;
 						n.agentCol = newAgentCol;
-						n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
-						n.boxes[newAgentRow][newAgentCol] = 0;
+
+						for (int i = 0; i < n.boxes.size(); i++) {
+							//System.err.println("ROW:" + i);
+							for (int j = 0; j < n.boxes.get(0).size(); j++) {
+								//System.err.println("COL:" + j);
+								if(n.boxes.get(i).get(j) == '\u0000'){
+									System.err.print('*');
+								}
+								System.err.print(n.boxes.get(i).get(j));
+							}
+							System.err.println();
+						}
+						//n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
+						char thisBoxesGet = this.boxes.get(newAgentRow).get(newAgentCol);
+						System.err.println("New box row is " + newBoxRow + " new box col is " + newBoxCol);
+						char hiiyyyya = n.boxes.get(newBoxRow).get(newBoxCol);
+						n.boxes.get(newBoxRow).set(newBoxCol, thisBoxesGet);
+						//n.boxes[newAgentRow][newAgentCol] = 0;
+						n.boxes.get(newAgentRow).set(newAgentCol,'\u0000');
 						expandedNodes.add(n);
 					}
 				}
@@ -124,8 +140,10 @@ public class Node {
 						n.action = c;
 						n.agentRow = newAgentRow;
 						n.agentCol = newAgentCol;
-						n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
-						n.boxes[boxRow][boxCol] = 0;
+						//n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
+						n.boxes.get(this.agentRow).set(this.agentCol, this.boxes.get(boxRow).get(boxCol));
+						//n.boxes[boxRow][boxCol] = 0;
+						n.boxes.get(boxRow).set(boxCol,'\u0000');
 						expandedNodes.add(n);
 					}
 				}
@@ -137,18 +155,26 @@ public class Node {
 
 	//added walls as argument because walls is no longer an attribute of node
 	private boolean cellIsFree(int row, int col, ArrayList<ArrayList<Boolean>> walls) {
-		return !walls.get(row).get(col) && this.boxes[row][col] == 0;
+		return !walls.get(row).get(col) && this.boxes.get(row).get(col) == 0;
 	}
 
 	private boolean boxAt(int row, int col) {
-		return this.boxes[row][col] > 0;
+		return this.boxes.get(row).get(col) > 0;
 	}
 
 	private Node ChildNode() {
 		Node copy = new Node(this, maxRow, maxCol);
-		for (int row = 0; row < maxRow; row++) {
-			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
+		copy.boxes = new ArrayList<>();
+		for(int row = 0; row < this.boxes.size(); row++){
+			copy.boxes.add(new ArrayList<>());
+			for (int col = 0; col < this.boxes.get(row).size(); col++){
+				copy.boxes.get(row).add(this.boxes.get(row).get(col));
+			}
 		}
+
+//		for (int row = 0; row < maxRow; row++) {
+//			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
+//		}
 		return copy;
 	}
 
@@ -169,7 +195,7 @@ public class Node {
 			int result = 1;
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
-			result = prime * result + Arrays.deepHashCode(this.boxes);
+			result = prime * result + this.boxes.hashCode();//Arrays.deepHashCode(this.boxes);
 			this._hash = result;
 		}
 		return this._hash;
@@ -187,8 +213,19 @@ public class Node {
 		Node other = (Node) obj;
 		if (this.agentRow != other.agentRow || this.agentCol != other.agentCol)
 			return false;
-		if (!Arrays.deepEquals(this.boxes, other.boxes))
+		if (!boxesEquals(this.boxes, other.boxes))
 			return false;
+		return true;
+	}
+
+	public boolean boxesEquals(ArrayList<ArrayList<Character>> thisBoxes, ArrayList<ArrayList<Character>> otherBoxes){
+		for (int i = 0; i < thisBoxes.size(); i++) {
+			for (int j = 0; j < thisBoxes.get(i).size(); j++) {
+				if (thisBoxes.get(i).get(j) != otherBoxes.get(i).get(j)) {
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 
@@ -201,8 +238,8 @@ public class Node {
 				break;
 			}
 			for (int col = 0; col < maxCol; col++) {
-				if (this.boxes[row][col] > 0) {
-					s.append(this.boxes[row][col]);
+				if (this.boxes.get(row).get(col) > 0) {
+					s.append(this.boxes.get(row).get(col));
 				} else if (goals[row][col] > 0) {
 					s.append(goals[row][col]);
 				} else if (walls[row][col]) {
