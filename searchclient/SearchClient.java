@@ -12,11 +12,11 @@ import searchclient.Heuristic.*;
 
 public class SearchClient {
 	public Node initialState;
-	//public static int MAX_ROW = 70;
-	//public static int MAX_COL = 70;
-	//public boolean[][] walls;// = new boolean[MAX_ROW][MAX_COL];
-	//public char[][] goals; // = new char[MAX_ROW][MAX_COL];
-	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
+
+        /* Refactored walls and goals to SearchClient, instead of Node so that 
+         * they would not be regenerated for every node created <saves memory>
+         */
+        public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
 	public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
@@ -31,7 +31,7 @@ public class SearchClient {
 		int row = 0;
 		boolean agentFound = false;
 
-		//find maxRow and maxCol
+		// find maxRow and maxCol
 		int maxRow = 70;
 		int maxCol = 70;
 
@@ -46,12 +46,13 @@ public class SearchClient {
 				char chr = line.charAt(col);
 
 				if (chr == '+') { // Wall.
-					//changed from this.intialstate.walls because walls is no longer an attribute of initalstate
-					//this.walls[row][col] = true;
-					//changed walls to nested arraylist -access row and then add boolean to end of list
-					walls.get(row).add(true);
-					goals.get(row).add('\u0000');
-					this.initialState.boxes.get(row).add('\u0000');
+					/* Changed from this.intialstate.walls because walls is no longer an attribute of initalstate
+                                         * Changed walls to nested arraylist 
+                                         * --> Because they're arraylists, instead of a 2d array, we just add new elements.
+                                         */
+					walls.get(row).add(true); 
+					goals.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					this.initialState.boxes.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
 				}
 				else {
 					walls.get(row).add(false);
@@ -71,7 +72,6 @@ public class SearchClient {
 						goals.get(row).add('\u0000');
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
 						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
-						//this.goals[row][col] = chr;
 						goals.get(row).add(chr);
 						this.initialState.boxes.get(row).add('\u0000');
 					} else if (chr == ' ') {
@@ -87,37 +87,6 @@ public class SearchClient {
 			line = serverMessages.readLine();
 			row++;
 		}
-		for (int i = 0; i < row; i++) {
-			//System.err.println("ROW:" + i);
-			for (int j = 0; j < goals.get(0).size(); j++) {
-				//System.err.println("COL:" + j);
-				System.err.print(goals.get(i).get(j));
-			}
-			System.err.println();
-		}
-
-		for (int i = 0; i < row; i++) {
-			//System.err.println("ROW:" + i);
-			for (int j = 0; j < this.initialState.boxes.get(0).size(); j++) {
-				//System.err.println("COL:" + j);
-				if(this.initialState.boxes.get(i).get(j) == '\u0000'){
-					System.err.print('*');
-				}
-				System.err.print(this.initialState.boxes.get(i).get(j));
-			}
-			System.err.println();
-		}
-
-		/*
-		for (int i = 0; i < row; i++) {
-			//System.err.println("ROW:" + i);
-			for (int j = 0; j < walls.get(0).size(); j++) {
-				//System.err.println("COL:" + j);
-				System.err.print(walls.get(i).get(j));
-			}
-			System.err.println();
-		}
-		*/
 
 	}
 
