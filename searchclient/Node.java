@@ -7,9 +7,6 @@ import searchclient.Command.Type;
 public class Node {
 	private static final Random RND = new Random(1);
 
-	/*public static int MAX_ROW = 70;
-	public static int MAX_COL = 70;*/
-
 	public int agentRow;
 	public int agentCol;
 
@@ -28,7 +25,6 @@ public class Node {
 	//
 
 	//got rid of goals and walls as attributes of node and moved them to attributes of search client
-	//public char[][] boxes; //= new char[MAX_ROW][MAX_COL];
 	public ArrayList<ArrayList<Character>> boxes;
 
 	public Node parent;
@@ -40,10 +36,7 @@ public class Node {
 
 	public Node(Node parent, int maxRow, int maxCol) {
 		this.parent = parent;
-		//boxes = new char[maxRow][maxCol];
 		boxes = new ArrayList<>();
-		//this.maxRow = maxRow;
-		//this.maxCol = maxCol;
 		if (parent == null) {
 			this.g = 0;
 		} else {
@@ -63,11 +56,9 @@ public class Node {
 	public boolean isGoalState(ArrayList<ArrayList<Character>> goals) {
 		for (int row = 1; row < goals.size() - 1; row++) {
 			for (int col = 1; col < goals.get(0).size() - 1; col++) {
-				char g = goals.get(row).get(col);//[row][col];
-				//char b = Character.toLowerCase(boxes[row][col]);
+				char g = goals.get(row).get(col);
 				char b = Character.toLowerCase(boxes.get(row).get(col));
 				if (g > 0 && b != g) {
-					//System.err.println("G: " + g + " B: " + b);
 					return false;
 				}
 			}
@@ -75,8 +66,9 @@ public class Node {
 		return true;
 	}
 
-	//add walls as an argument bc walls is no longer an attribute of node and it is
-	//required for
+        /* Added walls as an argument to 'getExpandedNodes' since walls is no longer an
+         * attribute of the Node class and is required for the method.
+         */ 
 	public ArrayList<Node> getExpandedNodes(ArrayList<ArrayList<Boolean>> walls) {
 		ArrayList<Node> expandedNodes = new ArrayList<Node>(Command.EVERY.length);
 		for (Command c : Command.EVERY) {
@@ -107,23 +99,10 @@ public class Node {
 						n.agentRow = newAgentRow;
 						n.agentCol = newAgentCol;
 
-						for (int i = 0; i < n.boxes.size(); i++) {
-							//System.err.println("ROW:" + i);
-							for (int j = 0; j < n.boxes.get(0).size(); j++) {
-								//System.err.println("COL:" + j);
-								if(n.boxes.get(i).get(j) == '\u0000'){
-									System.err.print('*');
-								}
-								System.err.print(n.boxes.get(i).get(j));
-							}
-							System.err.println();
-						}
-						//n.boxes[newBoxRow][newBoxCol] = this.boxes[newAgentRow][newAgentCol];
-						char thisBoxesGet = this.boxes.get(newAgentRow).get(newAgentCol);
-						System.err.println("New box row is " + newBoxRow + " new box col is " + newBoxCol);
-						char hiiyyyya = n.boxes.get(newBoxRow).get(newBoxCol);
-						n.boxes.get(newBoxRow).set(newBoxCol, thisBoxesGet);
-						//n.boxes[newAgentRow][newAgentCol] = 0;
+                                                // Value to set 
+						char newColVal = this.boxes.get(newAgentRow).get(newAgentCol);
+						// set boxes[newBoxRow][newBoxCol] = newColVal
+                                                n.boxes.get(newBoxRow).set(newBoxCol, newColVal);
 						n.boxes.get(newAgentRow).set(newAgentCol,'\u0000');
 						expandedNodes.add(n);
 					}
@@ -140,9 +119,8 @@ public class Node {
 						n.action = c;
 						n.agentRow = newAgentRow;
 						n.agentCol = newAgentCol;
-						//n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
+                                                // Do what the original did, but using our ArrayList structure.
 						n.boxes.get(this.agentRow).set(this.agentCol, this.boxes.get(boxRow).get(boxCol));
-						//n.boxes[boxRow][boxCol] = 0;
 						n.boxes.get(boxRow).set(boxCol,'\u0000');
 						expandedNodes.add(n);
 					}
@@ -153,7 +131,7 @@ public class Node {
 		return expandedNodes;
 	}
 
-	//added walls as argument because walls is no longer an attribute of node
+	// Added walls as argument because walls is no longer an attribute of node
 	private boolean cellIsFree(int row, int col, ArrayList<ArrayList<Boolean>> walls) {
 		return !walls.get(row).get(col) && this.boxes.get(row).get(col) == 0;
 	}
@@ -172,9 +150,6 @@ public class Node {
 			}
 		}
 
-//		for (int row = 0; row < maxRow; row++) {
-//			System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, maxCol);
-//		}
 		return copy;
 	}
 
@@ -195,14 +170,14 @@ public class Node {
 			int result = 1;
 			result = prime * result + this.agentCol;
 			result = prime * result + this.agentRow;
-			result = prime * result + this.boxes.hashCode();//Arrays.deepHashCode(this.boxes);
+			result = prime * result + this.boxes.hashCode(); // get hash code for ArrayList boxes. 
 			this._hash = result;
 		}
 		return this._hash;
 	}
 
 	@Override
-	//removed walls and goals as they are no longer attributes of node
+	// Removed walls and goals as they are no longer attributes of node
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -229,7 +204,7 @@ public class Node {
 		return true;
 	}
 
-	//since toString was already being weird for a toString (ie not following normal protocol)
+	// Since toString was already being weird for a toString (ie not following normal protocol)
 	// we got rid of the override and pass walls and goals as arguments so it prints nicely
 	public String prettyPrint(boolean[][] walls, char[][] goals, int maxRow, int maxCol) {
 		StringBuilder s = new StringBuilder();
