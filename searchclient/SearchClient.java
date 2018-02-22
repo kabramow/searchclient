@@ -31,12 +31,7 @@ public class SearchClient {
 		int row = 0;
 		boolean agentFound = false;
 
-		// find maxRow and maxCol
-		int maxRow = 70;
-		int maxCol = 70;
-
-
-		this.initialState = new Node(null, maxRow, maxCol);
+		this.initialState = new Node(null);
 
 		while (!line.equals("")) {
 			walls.add(new ArrayList<Boolean>());

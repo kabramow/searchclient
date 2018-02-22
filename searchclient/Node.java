@@ -10,10 +10,6 @@ public class Node {
 	public int agentRow;
 	public int agentCol;
 
-	//added these as local variables to compensate for lack
-	public int maxRow;
-	public int maxCol;
-
 	// Arrays are indexed from the top-left of the level, with first index being row and second being column.
 	// Row 0: (0,0) (0,1) (0,2) (0,3) ...
 	// Row 1: (1,0) (1,1) (1,2) (1,3) ...
@@ -34,7 +30,7 @@ public class Node {
 	
 	private int _hash = 0;
 
-	public Node(Node parent, int maxRow, int maxCol) {
+	public Node(Node parent) {
 		this.parent = parent;
 		boxes = new ArrayList<>();
 		if (parent == null) {
@@ -141,7 +137,7 @@ public class Node {
 	}
 
 	private Node ChildNode() {
-		Node copy = new Node(this, maxRow, maxCol);
+		Node copy = new Node(this);
 		copy.boxes = new ArrayList<>();
 		for(int row = 0; row < this.boxes.size(); row++){
 			copy.boxes.add(new ArrayList<>());
@@ -206,13 +202,13 @@ public class Node {
 
 	// Since toString was already being weird for a toString (ie not following normal protocol)
 	// we got rid of the override and pass walls and goals as arguments so it prints nicely
-	public String prettyPrint(boolean[][] walls, char[][] goals, int maxRow, int maxCol) {
+	public String prettyPrint(boolean[][] walls, char[][] goals) {
 		StringBuilder s = new StringBuilder();
-		for (int row = 0; row < maxRow; row++) {
+		for (int row = 0; row < 70; row++) {
 			if (!walls[row][0]) {
 				break;
 			}
-			for (int col = 0; col < maxCol; col++) {
+			for (int col = 0; col < 70; col++) {
 				if (this.boxes.get(row).get(col) > 0) {
 					s.append(this.boxes.get(row).get(col));
 				} else if (goals[row][col] > 0) {
