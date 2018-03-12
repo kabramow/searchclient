@@ -35,6 +35,7 @@ public abstract class Heuristic implements Comparator<Node> {
 				}
 			}
 		}
+		System.err.println(goalLocations.toString());
 		//TODO determine distance from one point to another for every point in the array
 	}
 
