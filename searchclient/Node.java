@@ -50,6 +50,7 @@ public class Node {
 
 	//added goals as an argument as it is no longer an attribute of node
 	public boolean isGoalState(ArrayList<ArrayList<Character>> goals) {
+		//TODO - is minus one here redundant - potentially concern
 		for (int row = 1; row < goals.size() - 1; row++) {
 			for (int col = 1; col < goals.get(0).size() - 1; col++) {
 				char g = goals.get(row).get(col);
