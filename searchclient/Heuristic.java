@@ -8,30 +8,33 @@ import java.util.Map;
 import searchclient.NotImplementedException;
 
 public abstract class Heuristic implements Comparator<Node> {
-	HashMap<Character, ArrayList<int[]>> goalLocations;
+	//character is a goal represent by an lowercase letter, and the value is is a list of locations of that goal
+	HashMap<Character, ArrayList<Point>> goalLocations;
 	public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals) {
 		// Here's a chance to pre-process the static parts of the level.
-		//TODO make hashmap of goals
-		/*HashMap<Character, ArrayList<int[]>>*/ goalLocations = new HashMap<>();
+
+		//make hashmap of goals for easy look up of nearest goal
+		goalLocations = new HashMap<>();
+		//loop through the goals nested array to find goal locations
 		for(int row = 0; row < goals.size(); row++){
 			for(int col = 0; col < goals.get(row).size(); col++){
 				char currentChar = goals.get(row).get(col);
 				if(currentChar != '\u0000'){
 					//set array with location of point
-					int[] currentLocation = {row, col};
-					ArrayList<int[]> locationsOfChar;
+					Point currentLocation = new Point(row, col);
+					ArrayList<Point> currentLocationsOfGoal;
 					//if there are already locations of char listed, then find them
 					if(goalLocations.containsKey(currentChar)){
-						 locationsOfChar = goalLocations.get(currentChar);
+						currentLocationsOfGoal = goalLocations.get(currentChar);
 					}
 					//if there are not locations of char found initialize a new array containing them
 					else{
-						locationsOfChar = new ArrayList<>();
+						currentLocationsOfGoal = new ArrayList<>();
 					}
 					//then add new location found to list of locations
-					locationsOfChar.add(currentLocation);
+					currentLocationsOfGoal.add(currentLocation);
 					//and add updated locations to hashmap
-					goalLocations.put(currentChar, locationsOfChar);
+					goalLocations.put(currentChar, currentLocationsOfGoal);
 				}
 			}
 		}
@@ -53,18 +56,16 @@ public abstract class Heuristic implements Comparator<Node> {
 				//if current value is a box
 				if(currentChar != '\u0000'){
 					if(goalLocations.containsKey(currentChar)){
-						//find char locations
-						ArrayList<int[]> currentGoalLocations = goalLocations.get(currentChar);
+						//find goal locations
+						ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
 						int closestDistance = 100000000;
 						int closestX = -10;
 						int closestY = -10;
-						for(int[] location : currentGoalLocations){
-							int goalRow = location[0];
-							int goalCol = location[1];
-							int x1Minusx2 = goalRow - row;
-							int y1Minusy2 = goalCol - col;
-							//find manhattan distance away
-							int manhattanDistance = x1Minusx2 + y1Minusy2;
+						for(Point location : currentGoalLocations){
+							int goalRow = location.getX();
+							int goalCol = location.getY();
+							//find manhattan distance
+							int manhattanDistance = manhattanDistance(row, col, goalRow, goalCol);
 							if(manhattanDistance < closestDistance){
 								closestDistance = manhattanDistance;
 								closestX = goalRow;
@@ -79,19 +80,18 @@ public abstract class Heuristic implements Comparator<Node> {
 			}
 		}
 		return returnSum;
-		//make hashmap of goal nodes
+	}
+
+
+	//finds manhattan distance of two points aka x distance away + y distance away
+	public int manhattanDistance(int x1, int y1, int x2, int y2){
+		return (x1 - x2) + (y2 - y1);
 	}
 
 	public String debugMapperToString(Object[] mapper){
 		return "For char " + mapper[0] + " in (" + mapper[1] + ", " + mapper[2]
 				+ ") the closest goal is (" + mapper[3] + ", " + mapper[4] + ") with a distance of " + mapper[5];
 	}
-
-	///manhattan distance that favors closest
-	///manhattan distance that favors farthest
-	///manhattan distance that only claims one per object
-	///manhattan favoring first
-	//map of nodes? map of goal nodes?
 
 	public abstract int f(Node n);
 
