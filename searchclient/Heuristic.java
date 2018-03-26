@@ -65,9 +65,9 @@ public abstract class Heuristic implements Comparator<Node> {
 							int goalRow = location.getX();
 							int goalCol = location.getY();
 							//find manhattan distance
-							int manhattanDistance = manhattanDistance(row, col, goalRow, goalCol);
-							if(manhattanDistance < closestDistance){
-								closestDistance = manhattanDistance;
+							int distance = manhattanDistance(row, col, goalRow, goalCol);
+							if(distance < closestDistance){
+								closestDistance = distance;
 								closestX = goalRow;
 								closestY = goalCol;
 							}
