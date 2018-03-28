@@ -34,6 +34,7 @@ public abstract class Heuristic implements Comparator<Node> {
 
         //a filler object if a point is a wall in the point distances array object
         ArrayList<ArrayList<Integer>> wallFiller = new ArrayList<>();
+        int WALL_INT_CONSTANT = 100000000;
 
 		//loop through the goals nested array to find goal locations
 		for(int row = 0; row < goals.size(); row++){
@@ -74,17 +75,25 @@ public abstract class Heuristic implements Comparator<Node> {
                             ArrayList<Integer> subRow = new ArrayList<>();
                             subGrid.add(subRow);
                             for(int j = 0; j < col; j++){
-                                subRow.add(distanceBetweenTwoPoints(i, j, row, col));
-                                //ADD these points to a visited tracker for BFS?
+                                //if point is a wall add a filler max int
+                                if(pointDistances.get(i).get(j).size() == 0){
+                                    subRow.add(WALL_INT_CONSTANT);
+                                }
+                                //otherwise see previously calculated values
+                                else {
+                                    subRow.add(distanceBetweenTwoPoints(i, j, row, col));
+                                    //ADD these points to a visited tracker for BFS?
+                                }
                             }
                         }
                     }
                     //fill in the rest of the grid with BFS
                     for(int i = row; i < goals.size(); i++){
+                        //TODO don't add a new array list if it's on the same row
                         ArrayList<Integer> subRow = new ArrayList<>();
                         subGrid.add(subRow);
                         for(int j = col; j < goals.get(row).size(); j++){
-                            subRow.add(distanceBetweenTwoPoints(i, j, row, col));
+                            //TODO implement BFS
                         }
                     }
                     /*for(int row = 0; row < goals.size(); row++){
