@@ -151,6 +151,8 @@ public abstract class Heuristic implements Comparator<Node> {
                             if (currentY < rowCount-1) {
                                 Point belowPoint = new Point(currentX, currentY+1);
                                 if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
+									System.err.println("Does visited contain node below " + currentX + ", "
+									+ currentY + "?" + visited.contains(belowPoint));
                                     frontier.add(new PointNode(currentX, currentY+1, currentDistance));
                                     frontierSet.add(belowPoint);
                                 }
