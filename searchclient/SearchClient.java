@@ -33,6 +33,9 @@ public class SearchClient {
 
 		this.initialState = new Node(null);
 
+		//Removes trailing spaces
+		line = line.replaceAll("\\s+$", "");
+
 		while (!line.equals("")) {
 			walls.add(new ArrayList<Boolean>());
 			goals.add(new ArrayList<Character>());
@@ -80,6 +83,7 @@ public class SearchClient {
 				}
 			}
 			line = serverMessages.readLine();
+			line = line.replaceAll("\\s+$", "");
 			row++;
 		}
 
