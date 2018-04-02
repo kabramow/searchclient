@@ -36,6 +36,10 @@ public class Point {
         return y == point.y;
     }
 
+    public int hashCode() {
+        return 0;
+    }
+
     @Override
     public String toString() {
         return "Point{" +
