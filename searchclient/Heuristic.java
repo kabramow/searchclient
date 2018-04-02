@@ -122,6 +122,8 @@ public abstract class Heuristic implements Comparator<Node> {
                     frontier.add(firstPoint);
                     frontierSet.add(firstPoint);
                     while(!frontier.isEmpty()){
+                        System.err.println("Frontier is " + frontier.size() + " frontier set is " + frontierSet.size() +
+                        " visited is " + visited.size());
                         Point currentPoint = frontier.poll();
                         frontierSet.remove(currentPoint);
                         //update grid
@@ -129,10 +131,12 @@ public abstract class Heuristic implements Comparator<Node> {
                         int currentY = currentPoint.getY();
                         //check if current point is a wall - if it is add wall filler value
                         if (walls.get(currentX).get(currentY)){
+                            //System.err.println("I am a wall");
                             subGrid[currentX][currentY] = WALL_INT_CONSTANT;
                         }
                         //if it isn't expand upon it
                         else {
+                            //System.err.println("NO wall");
                             int currentDistance = currentPoint.getPreviousDistance() + 1;
                             subGrid[currentX][currentY] = currentDistance;
                             //add points around it to frontier if they aren't already visited or in frontier
@@ -141,6 +145,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 Point abovePoint = new Point(currentX, currentY-1, currentDistance);
                                 if(!visited.contains(abovePoint) || !frontierSet.contains(abovePoint)){
                                     frontier.add(abovePoint);
+                                    frontierSet.add(abovePoint);
                                 }
                             }
                             //see if point below is anything
@@ -148,6 +153,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 Point belowPoint = new Point(currentX, currentY+1, currentDistance);
                                 if(!visited.contains(belowPoint) || !frontierSet.contains(belowPoint)){
                                     frontier.add(belowPoint);
+                                    frontierSet.add(belowPoint);
                                 }
                             }
                             //see if point to the left is anything
@@ -155,6 +161,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 Point leftPoint = new Point(currentX-1, currentY, currentDistance);
                                 if(!visited.contains(leftPoint) || !frontierSet.contains(leftPoint)){
                                     frontier.add(leftPoint);
+                                    frontierSet.add(leftPoint);
                                 }
                             }
                             //see if point to the right is anything
@@ -162,11 +169,13 @@ public abstract class Heuristic implements Comparator<Node> {
                                 Point rightPoint = new Point(currentX+1, currentY, currentDistance);
                                 if(!visited.contains(rightPoint) || !frontierSet.contains(rightPoint)){
                                     frontier.add(rightPoint);
+                                    frontierSet.add(rightPoint);
                                 }
                             }
                         }
                         visited.add(currentPoint);
                     }
+                    System.err.println("while loop completed!");
                 }
                 //++//++//++//++//++//++//++//++//++//++//++//++//++//++//++//
 			}
