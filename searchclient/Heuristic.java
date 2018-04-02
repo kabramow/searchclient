@@ -40,6 +40,7 @@ public abstract class Heuristic implements Comparator<Node> {
 
         //number of rows in goals
         int rowCount = goals.size();
+		System.err.println("Row count = " + rowCount);
         //technically redundant but easier to read later code
         int columnCount = longestRowLength;
 
@@ -110,6 +111,10 @@ public abstract class Heuristic implements Comparator<Node> {
 						//update grid
                         //check if current point is a wall - if it is add wall filler value
 						//TODO there is a bug with the following line yield index out of bound exceptions
+						//TODO BUG FOUND - the array gets mad if there are spaces at the end bc it throws off the
+						//column count and it will also present a problem if there is an uneven maze
+						System.err.println("X = " + currentX + " y = " + currentY);
+						//System.err.println("Wall rows = " + walls.get(currentX) + " cols = " + walls.get(0).size());
                         if (walls.get(currentX).get(currentY)){
                             subGrid[currentX][currentY] = WALL_INT_CONSTANT;
                         }
@@ -127,9 +132,10 @@ public abstract class Heuristic implements Comparator<Node> {
                                 }
                             }
                             //see if point below is anything
-                            if (currentY < rowCount-2) {
+                            if (currentY < walls.size()-2) {
                                 Point belowPoint = new Point(currentX, currentY+1);
                                 if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
+									System.err.println("Adding Below");
                                     frontier.add(new PointNode(currentX, currentY+1, currentDistance));
                                     frontierSet.add(belowPoint);
                                 }
@@ -143,7 +149,8 @@ public abstract class Heuristic implements Comparator<Node> {
                                 }
                             }
                             //see if point to the right is anything
-                            if (currentX < columnCount-2) {
+
+                            if (currentX < walls.get(currentX).size()-2) {
                                 Point rightPoint = new Point(currentX+1, currentY);
                                 if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
                                     frontier.add(new PointNode(currentX+1, currentY, currentDistance));
