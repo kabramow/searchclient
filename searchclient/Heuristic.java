@@ -7,6 +7,7 @@ import searchclient.NotImplementedException;
 public abstract class Heuristic implements Comparator<Node> {
 	//character is a goal represent by an lowercase letter, and the value is is a list of locations of that goal
 	HashMap<Character, ArrayList<Point>> goalLocations;
+
 	//a grid where the values for each part of the grid are also a grid and that grid maps the distance from the point
 	// referenced by the higher grid
 	/*        0 1 2
@@ -166,7 +167,6 @@ public abstract class Heuristic implements Comparator<Node> {
                         }
                         visited.add(currentPoint);
                     }
-
                 }
                 //++//++//++//++//++//++//++//++//++//++//++//++//++//++//++//
 			}
