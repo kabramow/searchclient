@@ -3,17 +3,10 @@ package searchclient;
 public class Point {
     public int x;
     public int y;
-    public int previousDistance;
 
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
-    }
-
-    public Point(int x, int y, int previousDistance) {
-        this.x = x;
-        this.y = y;
-        this.previousDistance = previousDistance;
     }
 
     public int getX() {
@@ -32,14 +25,6 @@ public class Point {
         this.y = y;
     }
 
-    public int getPreviousDistance() {
-        return previousDistance;
-    }
-
-    public void setPreviousDistance(int y) {
-        this.previousDistance = previousDistance;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,6 +34,14 @@ public class Point {
 
         if (x != point.x) return false;
         return y == point.y;
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 
 }

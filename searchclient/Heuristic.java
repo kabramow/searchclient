@@ -95,11 +95,10 @@ public abstract class Heuristic implements Comparator<Node> {
                     //represents the grid that is the distance between current point and other points
                     int[][] subGrid = new int[rowCount][columnCount];
 
-                    //keep track of points already visited
-                    HashSet<Point> frontierSet = new HashSet<>();
-                    //TODO refine visited to be more efficient?
-                    HashSet<Point> visited = new HashSet<>();
-                    Queue<Point> frontier = new LinkedList<>();
+                    Queue<PointNode> frontier = new LinkedList<>();
+					HashSet<Point> frontierSet = new HashSet<>();
+					//keep track of points already visited
+					HashSet<Point> visited = new HashSet<>();
 
                     //if point is not 0,0 we want to back trace already performed calculations
                     if(row != 0 && col != 0){
@@ -118,57 +117,57 @@ public abstract class Heuristic implements Comparator<Node> {
                         }
                     }
                     //fill in the rest of the grid with BFS
-                    Point firstPoint = new Point(row, col, -1);
-                    frontier.add(firstPoint);
-                    frontierSet.add(firstPoint);
+                    frontier.add(new PointNode(row, col, -1));
+                    frontierSet.add(new Point(row, col));
                     while(!frontier.isEmpty()){
-                        System.err.println("Frontier is " + frontier.size() + " frontier set is " + frontierSet.size() +
-                        " visited is " + visited.size());
-                        Point currentPoint = frontier.poll();
-                        frontierSet.remove(currentPoint);
-                        //update grid
-                        int currentX = currentPoint.getX();
-                        int currentY = currentPoint.getY();
+//                        System.err.println("Frontier is " + frontier.size() + " frontier set is " + frontierSet.size() +
+//                        " visited is " + visited.size());
+                        PointNode currentPointNode = frontier.poll();
+                        int currentX = currentPointNode.getX();
+                        int currentY = currentPointNode.getY();
+						Point currentPoint = new Point(currentX, currentY);
+						frontierSet.remove(currentPoint);
+						System.err.println("Current point is : " + currentPointNode.toString());
+
+						//update grid
                         //check if current point is a wall - if it is add wall filler value
                         if (walls.get(currentX).get(currentY)){
-                            //System.err.println("I am a wall");
                             subGrid[currentX][currentY] = WALL_INT_CONSTANT;
                         }
                         //if it isn't expand upon it
                         else {
-                            //System.err.println("NO wall");
-                            int currentDistance = currentPoint.getPreviousDistance() + 1;
+                            int currentDistance = currentPointNode.getPreviousDistance() + 1;
                             subGrid[currentX][currentY] = currentDistance;
                             //add points around it to frontier if they aren't already visited or in frontier
                             //see if point above is anything
                             if (currentY > 0) {
-                                Point abovePoint = new Point(currentX, currentY-1, currentDistance);
-                                if(!visited.contains(abovePoint) || !frontierSet.contains(abovePoint)){
-                                    frontier.add(abovePoint);
+                                Point abovePoint = new Point(currentX, currentY-1);
+                                if(!visited.contains(abovePoint) && !frontierSet.contains(abovePoint)){
+                                    frontier.add(new PointNode(currentX, currentY-1, currentDistance));
                                     frontierSet.add(abovePoint);
                                 }
                             }
                             //see if point below is anything
                             if (currentY < rowCount-1) {
-                                Point belowPoint = new Point(currentX, currentY+1, currentDistance);
-                                if(!visited.contains(belowPoint) || !frontierSet.contains(belowPoint)){
-                                    frontier.add(belowPoint);
+                                Point belowPoint = new Point(currentX, currentY+1);
+                                if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
+                                    frontier.add(new PointNode(currentX, currentY+1, currentDistance));
                                     frontierSet.add(belowPoint);
                                 }
                             }
                             //see if point to the left is anything
                             if (currentX > 0) {
-                                Point leftPoint = new Point(currentX-1, currentY, currentDistance);
-                                if(!visited.contains(leftPoint) || !frontierSet.contains(leftPoint)){
-                                    frontier.add(leftPoint);
+                                Point leftPoint = new Point(currentX-1, currentY);
+                                if(!visited.contains(leftPoint) && !frontierSet.contains(leftPoint)){
+                                    frontier.add(new PointNode(currentX-1, currentY, currentDistance));
                                     frontierSet.add(leftPoint);
                                 }
                             }
                             //see if point to the right is anything
                             if (currentX < columnCount-1) {
-                                Point rightPoint = new Point(currentX+1, currentY, currentDistance);
-                                if(!visited.contains(rightPoint) || !frontierSet.contains(rightPoint)){
-                                    frontier.add(rightPoint);
+                                Point rightPoint = new Point(currentX+1, currentY);
+                                if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
+                                    frontier.add(new PointNode(currentX+1, currentY, currentDistance));
                                     frontierSet.add(rightPoint);
                                 }
                             }
