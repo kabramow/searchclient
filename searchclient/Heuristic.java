@@ -5,28 +5,28 @@ import java.util.*;
 import searchclient.NotImplementedException;
 
 public abstract class Heuristic implements Comparator<Node> {
-	//character is a goal represent by an lowercase letter, and the value is is a list of locations of that goal
-	HashMap<Character, ArrayList<Point>> goalLocations;
+    //character is a goal represent by an lowercase letter, and the value is is a list of locations of that goal
+    HashMap<Character, ArrayList<Point>> goalLocations;
 
-	//a grid where the values for each part of the grid are also a grid and that grid maps the distance from the point
-	// referenced by the higher grid
-	/*        0 1 2
-			0 X + +
-			1 + + +
-			2 + + +
+    //a grid where the values for each part of the grid are also a grid and that grid maps the distance from the point
+    // referenced by the higher grid
+    /*        0 1 2
+              0 X + +
+              1 + + +
+              2 + + +
 
-			In the X grid the following grid is stored
+              In the X grid the following grid is stored
 
-			0 1 2
-			1 2 3
-			2 3 4
-	 */
-	ArrayList<ArrayList<int[][]>> pointDistances;
-	public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
-		// Here's a chance to pre-process the static parts of the level.
+              0 1 2
+              1 2 3
+              2 3 4
+              */
+    ArrayList<ArrayList<int[][]>> pointDistances;
+    public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+        // Here's a chance to pre-process the static parts of the level.
 
-		//make hashmap of goals for easy look up of nearest goal
-		goalLocations = new HashMap<>();
+        //make hashmap of goals for easy look up of nearest goal
+        goalLocations = new HashMap<>();
 
         pointDistances = new ArrayList<>();
 
@@ -54,12 +54,12 @@ public abstract class Heuristic implements Comparator<Node> {
             }
         }
 
-		//loop through the goals nested array to find goal locations
-		for(int row = 0; row < goals.size(); row++){
-			ArrayList<int[][]> currentRow = new ArrayList<>();
-			pointDistances.add(currentRow);
-			for(int col = 0; col < goals.get(row).size(); col++){
-				char currentChar = goals.get(row).get(col);
+        //loop through the goals nested array to find goal locations
+        for(int row = 0; row < goals.size(); row++){
+            ArrayList<int[][]> currentRow = new ArrayList<>();
+            pointDistances.add(currentRow);
+            for(int col = 0; col < goals.get(row).size(); col++){
+                char currentChar = goals.get(row).get(col);
 
                 //determine distance from one point to another for every point in the array
                 //++//++//++//++//++//++//++//++//++//++//++//++//++//++//++//
@@ -74,12 +74,12 @@ public abstract class Heuristic implements Comparator<Node> {
                     //represents the grid that is the distance between current point and other points
                     int[][] subGrid = new int[rowCount][columnCount];
 
-					currentRow.add(subGrid);
+                    currentRow.add(subGrid);
 
-					Queue<PointNode> frontier = new LinkedList<>();
-					HashSet<Point> frontierSet = new HashSet<>();
-					//keep track of points already visited
-					HashSet<Point> visited = new HashSet<>();
+                    Queue<PointNode> frontier = new LinkedList<>();
+                    HashSet<Point> frontierSet = new HashSet<>();
+                    //keep track of points already visited
+                    HashSet<Point> visited = new HashSet<>();
 
                     //if point is not 0,0 we want to back trace already performed calculations
                     if(row != 0 && col != 0){
@@ -104,10 +104,10 @@ public abstract class Heuristic implements Comparator<Node> {
                         PointNode currentPointNode = frontier.poll();
                         int currentX = currentPointNode.getX();
                         int currentY = currentPointNode.getY();
-						Point currentPoint = new Point(currentX, currentY);
-						frontierSet.remove(currentPoint);
+                        Point currentPoint = new Point(currentX, currentY);
+                        frontierSet.remove(currentPoint);
 
-						//update grid
+                        //update grid
                         //check if current point is a wall - if it is add wall filler value
                         if (walls.get(currentX).get(currentY)){
                             subGrid[currentX][currentY] = WALL_INT_CONSTANT;
@@ -155,141 +155,141 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
                 //++//++//++//++//++//++//++//++//++//++//++//++//++//++//++//
 
-				//This process is finding all the locations of goals and adding to a hashmap thing
-				//********//********//********//********//********//********//
-				if(currentChar != '\u0000'){
-					//set array with location of point
-					Point currentLocation = new Point(row, col);
-					ArrayList<Point> currentLocationsOfGoal;
-					//if there are already locations of char listed, then find them
-					if(goalLocations.containsKey(currentChar)){
-						currentLocationsOfGoal = goalLocations.get(currentChar);
-					}
-					//if there are not locations of char found initialize a new array containing them
-					else{
-						currentLocationsOfGoal = new ArrayList<>();
-					}
-					//then add new location found to list of locations
-					currentLocationsOfGoal.add(currentLocation);
-					//and add updated locations to hashmap
-					goalLocations.put(currentChar, currentLocationsOfGoal);
-				}
-				//********//********//********//********//********//********//
-			}
-		}
-	}
-
-	//Upper A is the box
-	//lower a is the goal
-	public int h(Node n) {
-		//track goal node and closest row
-		ArrayList<Object[]> debuggingMapper = new ArrayList<>();
-		int returnSum = 0;
-		ArrayList<ArrayList<Character>> boxes = n.boxes;
-		for(int row = 0; row < boxes.size(); row++) {
-			for (int col = 0; col < boxes.get(row).size(); col++) {
-
-				char currentChar = Character.toLowerCase(boxes.get(row).get(col));
-				//if current value is a box
-				if(currentChar != '\u0000'){
-					if(goalLocations.containsKey(currentChar)){
-						//find goal locations
-						ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
-						int closestDistance = 100000000;
-						int closestX = -10;
-						int closestY = -10;
-						for(Point location : currentGoalLocations){
-							int goalRow = location.getX();
-							int goalCol = location.getY();
-							//find manhattan distance
-							int distance = distanceBetweenTwoPoints(row, col, goalRow, goalCol);
-									//= manhattanDistance(row, col, goalRow, goalCol);
-							if(distance < closestDistance){
-								closestDistance = distance;
-								closestX = goalRow;
-								closestY = goalCol;
-							}
-						}
-						returnSum += closestDistance;
-						Object[] debugger = {currentChar, row, col, closestX, closestY, closestDistance};
-						debuggingMapper.add(debugger);
-					}
-				}
-			}
-		}
-		return returnSum;
-	}
-
-
-	//finds manhattan distance of two points aka x distance away + y distance away
-	public int manhattanDistance(int x1, int y1, int x2, int y2){
-		return (x1 - x2) + (y2 - y1);
-	}
-
-	public int distanceBetweenTwoPoints(int x1, int y1, int x2, int y2){
-	    return pointDistances.get(x1).get(y1)[x2][y2];
+                //This process is finding all the locations of goals and adding to a hashmap thing
+                //********//********//********//********//********//********//
+                if(currentChar != '\u0000'){
+                    //set array with location of point
+                    Point currentLocation = new Point(row, col);
+                    ArrayList<Point> currentLocationsOfGoal;
+                    //if there are already locations of char listed, then find them
+                    if(goalLocations.containsKey(currentChar)){
+                        currentLocationsOfGoal = goalLocations.get(currentChar);
+                    }
+                    //if there are not locations of char found initialize a new array containing them
+                    else{
+                        currentLocationsOfGoal = new ArrayList<>();
+                    }
+                    //then add new location found to list of locations
+                    currentLocationsOfGoal.add(currentLocation);
+                    //and add updated locations to hashmap
+                    goalLocations.put(currentChar, currentLocationsOfGoal);
+                }
+                //********//********//********//********//********//********//
+            }
+        }
     }
 
-	public String debugMapperToString(Object[] mapper){
-		return "For char " + mapper[0] + " in (" + mapper[1] + ", " + mapper[2]
-				+ ") the closest goal is (" + mapper[3] + ", " + mapper[4] + ") with a distance of " + mapper[5];
-	}
+    //Upper A is the box
+    //lower a is the goal
+    public int h(Node n) {
+        //track goal node and closest row
+        ArrayList<Object[]> debuggingMapper = new ArrayList<>();
+        int returnSum = 0;
+        ArrayList<ArrayList<Character>> boxes = n.boxes;
+        for(int row = 0; row < boxes.size(); row++) {
+            for (int col = 0; col < boxes.get(row).size(); col++) {
 
-	public abstract int f(Node n);
+                char currentChar = Character.toLowerCase(boxes.get(row).get(col));
+                //if current value is a box
+                if(currentChar != '\u0000'){
+                    if(goalLocations.containsKey(currentChar)){
+                        //find goal locations
+                        ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
+                        int closestDistance = 100000000;
+                        int closestX = -10;
+                        int closestY = -10;
+                        for(Point location : currentGoalLocations){
+                            int goalRow = location.getX();
+                            int goalCol = location.getY();
+                            //find manhattan distance
+                            int distance = distanceBetweenTwoPoints(row, col, goalRow, goalCol);
+                            //= manhattanDistance(row, col, goalRow, goalCol);
+                            if(distance < closestDistance){
+                                closestDistance = distance;
+                                closestX = goalRow;
+                                closestY = goalCol;
+                            }
+                        }
+                        returnSum += closestDistance;
+                        Object[] debugger = {currentChar, row, col, closestX, closestY, closestDistance};
+                        debuggingMapper.add(debugger);
+                    }
+                }
+            }
+        }
+        return returnSum;
+    }
 
-	@Override
-	public int compare(Node n1, Node n2) {
-		return this.f(n1) - this.f(n2);
-	}
 
-	public static class AStar extends Heuristic {
-		public AStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
-			super(initialState, goals, walls);
-		}
+    //finds manhattan distance of two points aka x distance away + y distance away
+    public int manhattanDistance(int x1, int y1, int x2, int y2){
+        return (x1 - x2) + (y2 - y1);
+    }
 
-		@Override
-		public int f(Node n) {
-			return n.g() + this.h(n);
-		}
+    public int distanceBetweenTwoPoints(int x1, int y1, int x2, int y2){
+        return pointDistances.get(x1).get(y1)[x2][y2];
+    }
 
-		@Override
-		public String toString() {
-			return "A* evaluation";
-		}
-	}
+    public String debugMapperToString(Object[] mapper){
+        return "For char " + mapper[0] + " in (" + mapper[1] + ", " + mapper[2]
+            + ") the closest goal is (" + mapper[3] + ", " + mapper[4] + ") with a distance of " + mapper[5];
+    }
 
-	public static class WeightedAStar extends Heuristic {
-		private int W;
+    public abstract int f(Node n);
 
-		public WeightedAStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls, int W) {
-			super(initialState, goals, walls);
-			this.W = W;
-		}
+    @Override
+    public int compare(Node n1, Node n2) {
+        return this.f(n1) - this.f(n2);
+    }
 
-		@Override
-		public int f(Node n) {
-			return n.g() + this.W * this.h(n);
-		}
+    public static class AStar extends Heuristic {
+        public AStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+            super(initialState, goals, walls);
+        }
 
-		@Override
-		public String toString() {
-			return String.format("WA*(%d) evaluation", this.W);
-		}
-	}
+        @Override
+        public int f(Node n) {
+            return n.g() + this.h(n);
+        }
 
-	public static class Greedy extends Heuristic {
-		public Greedy(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
-			super(initialState, goals, walls);
-		}
+        @Override
+        public String toString() {
+            return "A* evaluation";
+        }
+    }
 
-		@Override
-		public int f(Node n) {
-			return this.h(n);
-		}
+    public static class WeightedAStar extends Heuristic {
+        private int W;
 
-		@Override
-		public String toString() {
-			return "Greedy evaluation";
-		}
-	}
+        public WeightedAStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls, int W) {
+            super(initialState, goals, walls);
+            this.W = W;
+        }
+
+        @Override
+        public int f(Node n) {
+            return n.g() + this.W * this.h(n);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("WA*(%d) evaluation", this.W);
+        }
+    }
+
+    public static class Greedy extends Heuristic {
+        public Greedy(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+            super(initialState, goals, walls);
+        }
+
+        @Override
+        public int f(Node n) {
+            return this.h(n);
+        }
+
+        @Override
+        public String toString() {
+            return "Greedy evaluation";
+        }
+    }
 }
