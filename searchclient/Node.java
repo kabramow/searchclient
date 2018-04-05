@@ -203,6 +203,9 @@ public class Node {
 		return true;
 	}
 
+        /**
+         * A simple function for printing out the level grid.  
+         */
 	// Since toString was already being weird for a toString (ie not following normal protocol)
 	// we got rid of the override and pass walls and goals as arguments so it prints nicely
 	public String prettyPrint(boolean[][] walls, char[][] goals) {
