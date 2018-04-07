@@ -83,7 +83,7 @@ public abstract class Heuristic implements Comparator<Node> {
         }
 
         // Loop through the nested goals array to find and store goal locations
-        System.err.println("Max row is " + goals.length);
+        //System.err.println("Max row is " + goals.length);
         for(int row = 0; row < goals.length; row++){
             //ArrayList<int[][]> currentRow = new ArrayList<>();
             //pointDistances.add(currentRow);
@@ -112,9 +112,11 @@ public abstract class Heuristic implements Comparator<Node> {
                      */
                     // 1. First, we do a simple calculation from the 'beginning' of the grid, (0,0)
                     Queue<PointNode> frontier = new LinkedList<>();
-                    HashSet<Point> frontierSet = new HashSet<>();
+                    //HashSet<Point> frontierSet = new HashSet<>();
+                    boolean[][] frontierSet = new boolean[maxRow][maxCol];
                     // keep track of points already visited
-                    HashSet<Point> visited = new HashSet<>();
+                    //HashSet<Point> visited = new HashSet<>();
+                    boolean[][] visited = new boolean[maxRow][maxCol];
 
                     // if point is not 0,0 we want to back trace already performed calculations
                     if(row != 0 && col != 0){
@@ -128,7 +130,8 @@ public abstract class Heuristic implements Comparator<Node> {
                                 //otherwise see previously calculated values
                                 else {
                                     pointDistances[i][j][i][j] = distanceBetweenTwoPoints(i, j, row, col);
-                                    visited.add(new Point(i,j));
+                                    //visited.add(new Point(i,j));
+                                    visited[i][j] = true;
                                 }
                             }
                         }
@@ -136,13 +139,15 @@ public abstract class Heuristic implements Comparator<Node> {
 
                     // 2. Now, fill in the rest of the grid with BFS. 
                     frontier.add(new PointNode(row, col, -1));
-                    frontierSet.add(new Point(row, col));
+                    frontierSet[row][col] = true;
+                    //frontierSet.add(new Point(row, col));
                     while(!frontier.isEmpty()){
                         PointNode currentPointNode = frontier.poll();
                         int currentX = currentPointNode.getX();
                         int currentY = currentPointNode.getY();
                         Point currentPoint = new Point(currentX, currentY);
-                        frontierSet.remove(currentPoint);
+                        //frontierSet.remove(currentPoint);
+                        frontierSet[row][col] = false;
 
                         // update grid
                         // check if current point is a wall - if it is add wall filler value
@@ -159,39 +164,54 @@ public abstract class Heuristic implements Comparator<Node> {
                              * above, below, to the left, and to the right will be checked. */
                             // See if point above is anything
                             if (currentY > 0) {
-                                Point abovePoint = new Point(currentX, currentY-1);
-                                if(!visited.contains(abovePoint) && !frontierSet.contains(abovePoint)){
-                                    frontier.add(new PointNode(currentX, currentY-1, currentDistance));
-                                    frontierSet.add(abovePoint);
+                                int x = currentX;
+                                int y = currentY-1;
+                                //Point abovePoint = new Point(currentX, currentY-1);
+                                //if(!visited.contains(abovePoint) && !frontierSet.contains(abovePoint)){
+                                if(!visited[x][y] && !frontierSet[x][y]){
+                                    frontier.add(new PointNode(x, y, currentDistance));
+                                    //frontierSet.add(abovePoint);
+                                    frontierSet[x][y] = true;
                                 }
                             }
                             // See if point below is anything
                             if (currentY < walls.length-2) {
-                                Point belowPoint = new Point(currentX, currentY+1);
-                                if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
-                                    frontier.add(new PointNode(currentX, currentY+1, currentDistance));
-                                    frontierSet.add(belowPoint);
+                                int x = currentX;
+                                int y = currentY+1;
+                                //Point belowPoint = new Point(currentX, currentY+1);
+                                //if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
+                                if(!visited[x][y] && !frontierSet[x][y]){
+                                    frontier.add(new PointNode(x, y, currentDistance));
+                                    //frontierSet.add(belowPoint);
+                                    frontierSet[x][y] = true;
                                 }
                             }
                             // See if point to the left is anything
                             if (currentX > 0) {
-                                Point leftPoint = new Point(currentX-1, currentY);
-                                if(!visited.contains(leftPoint) && !frontierSet.contains(leftPoint)){
+                                int x = currentX-1;
+                                int y = currentY;
+                                //Point leftPoint = new Point(currentX-1, currentY);
+                                //if(!visited.contains(leftPoint) && !frontierSet.contains(leftPoint)){
+                                if(!visited[x][y] && !frontierSet[x][y]){
                                     frontier.add(new PointNode(currentX-1, currentY, currentDistance));
-                                    frontierSet.add(leftPoint);
+                                    frontierSet[x][y] = true;
                                 }
                             }
                             //see if point to the right is anything
                             if (currentX < walls[0].length-2) {
-                                Point rightPoint = new Point(currentX+1, currentY);
-                                if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
-                                    frontier.add(new PointNode(currentX+1, currentY, currentDistance));
-                                    frontierSet.add(rightPoint);
+                                int x = currentX+1;
+                                int y = currentY;
+                                //Point rightPoint = new Point(currentX+1, currentY);
+                                //if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
+                                if(!visited[x][y] && !frontierSet[x][y]){
+                                    frontier.add(new PointNode(x, y, currentDistance));
+                                    frontierSet[x][y] = true;
                                 }
                             }
                         }
                         // Mark the current point as visited
-                        visited.add(currentPoint);
+                        //visited.add(currentPoint);
+                        visited[currentX][currentY] = true;
                     }
                 }
 
@@ -218,7 +238,7 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
-        System.err.println("DONE!");
+        //System.err.println("DONE!");
     }
 
 
