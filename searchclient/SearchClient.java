@@ -43,49 +43,6 @@ public class SearchClient {
 		readLines.add(line);
 
 		while (!line.equals("")) {
-			//this.initialState.boxes.add(new ArrayList<>());
-			for (int col = 0; col < line.length(); col++) {
-				char chr = line.charAt(col);
-
-				if (chr == '+') { // Wall.
-					/* Changed from this.intialstate.walls because walls is no longer an attribute of initalstate
-                                         * Changed walls to nested arraylist 
-                                         * --> Because they're arraylists, instead of a 2d array, we just add new elements.
-                                         */
-					//walls.get(maxRow).add(true);
-					//goals.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
-					//this.initialState.boxes.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
-				}
-				else {
-					//walls.get(maxRow).add(false);
-
-					if ('0' <= chr && chr <= '9') { // Agent.
-						if (agentFound) {
-							System.err.println("Error, not a single agent level");
-							System.exit(1);
-						}
-						agentFound = true;
-						this.initialState.agentRow = maxRow;
-						this.initialState.agentCol = col;
-						//goals.get(maxRow).add('\u0000');
-						//this.initialState.boxes.get(maxRow).add('\u0000');
-					} else if ('A' <= chr && chr <= 'Z') { // Box.
-						//this.initialState.boxes.get(maxRow).add(chr);
-						//goals.get(maxRow).add('\u0000');
-					} else if ('a' <= chr && chr <= 'z') { // Goal.
-						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
-						//goals.get(maxRow).add(chr);
-						//this.initialState.boxes.get(maxRow).add('\u0000');
-					} else if (chr == ' ') {
-						// Free space.
-						//goals.get(maxRow).add('\u0000');
-						//this.initialState.boxes.get(maxRow).add('\u0000');
-					} else {
-						System.err.println("Error, read invalid level character: " + (int) chr);
-						System.exit(1);
-					}
-				}
-			}
 			line = serverMessages.readLine();
 			line = line.replaceAll("\\s+$", "");
 			maxRow++;
@@ -122,14 +79,14 @@ public class SearchClient {
 					//walls[row][col] = false;
 
 					if ('0' <= chr && chr <= '9') { // Agent.
-						/*if (agentFound) {
+						if (agentFound) {
 							System.err.println("Error, not a single agent level");
 							System.exit(1);
 						}
 						agentFound = true;
-						this.initialState.agentRow = maxRow;
-						this.initialState.agentCol = col;*/
-						//goals[row][col] = '\u0000';
+						this.initialState.agentRow = row;
+						this.initialState.agentCol = col;
+						goals[row][col] = '\u0000';
 						initialState.boxes.get(row).add('\u0000');
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
 						this.initialState.boxes.get(row).add(chr);
