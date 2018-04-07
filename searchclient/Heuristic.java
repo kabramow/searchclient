@@ -220,13 +220,14 @@ public abstract class Heuristic implements Comparator<Node> {
 
     public int h(Node n) {
         //track goal node and closest row
-        ArrayList<Object[]> debuggingMapper = new ArrayList<>();
         int returnSum = 0;
         ArrayList<ArrayList<Character>> boxes = n.boxes;
-        for(int row = 0; row < boxes.size(); row++) {
-            for (int col = 0; col < boxes.get(row).size(); col++) {
+        //char[][] boxes = n.boxes;
+        for(int row = 0; row < n.maxRow; row++) {
+            for (int col = 0; col < n.maxCol; col++) {
 
                 char currentChar = Character.toLowerCase(boxes.get(row).get(col));
+                //char currentChar = Character.toLowerCase(boxes[row][col]);
                 //if current value is a box
                 if(currentChar != '\u0000'){
                     if(goalLocations.containsKey(currentChar)){
@@ -248,8 +249,6 @@ public abstract class Heuristic implements Comparator<Node> {
                             }
                         }
                         returnSum += closestDistance;
-                        Object[] debugger = {currentChar, row, col, closestX, closestY, closestDistance};
-                        debuggingMapper.add(debugger);
                     }
                 }
             }

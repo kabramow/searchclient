@@ -62,7 +62,7 @@ public class SearchClient {
 			//System.err.println("Read lines is " + readLines.size());
 			String currentLine = readLines.get(row);
 			//System.err.println("current line is " + currentLine);
-			//this.initialState.boxes.add(new ArrayList<>());
+			this.initialState.boxes.add(new ArrayList<>());
 			for (int col = 0; col < currentLine.length(); col++) {
 				//System.err.println("line len is " + currentLine.length());
 				char chr = currentLine.charAt(col);
@@ -74,7 +74,8 @@ public class SearchClient {
                                          */
 					walls[row][col] = true;
 					//goals[row][col] = '\u0000';
-					//this.initialState.boxes.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					this.initialState.boxes.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					//this.initialState.boxes[row][col] = '\u0000';
 				}
 				else {
 					//walls[row][col] = false;
@@ -88,18 +89,21 @@ public class SearchClient {
 						this.initialState.agentRow = row;
 						this.initialState.agentCol = col;
 						goals[row][col] = '\u0000';
-						//initialState.boxes.get(row).add('\u0000');
+						initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
-						//this.initialState.boxes.get(row).add(chr);
-						this.initialState.boxes[row][col] = chr;
+						this.initialState.boxes.get(row).add(chr);
+						//this.initialState.boxes[row][col] = chr;
 						//goals[row][col] = '\u0000';
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
 						goals[row][col] = chr;
-						//this.initialState.boxes.get(row).add('\u0000');
+						this.initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else if (chr == ' ') {
 						// Free space.
 						//goals[row][col] = '\u0000';
-						//this.initialState.boxes.get(row).add('\u0000');
+						this.initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
