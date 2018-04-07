@@ -42,7 +42,7 @@ public abstract class Heuristic implements Comparator<Node> {
     /**
      * Constructor for Heuristic
      */
-    public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
+    public Heuristic(Node initialState, char[][] goals, boolean[][] walls) {
         // Here's a chance to pre-process the static parts of the level.
 
         // Here we make hashmap of goals for efficient look up of nearest goal
@@ -53,14 +53,14 @@ public abstract class Heuristic implements Comparator<Node> {
 
         // Here we find the longest row length of the level, through the goals-representation.
         int longestRowLength = 0;
-        for(int i = 0; i < goals.size(); i++){
-            if(goals.get(i).size() > longestRowLength){
-                longestRowLength = goals.get(i).size();
+        for(int i = 0; i < goals.length; i++){
+            if(goals[i].length > longestRowLength) {
+                longestRowLength = goals[i].length;
             }
         }
 
         // Number of rows in goals
-        int rowCount = goals.size();
+        int rowCount = goals.length;
         // Technically redundant but easier to read later code
         int columnCount = longestRowLength;
 
@@ -81,11 +81,12 @@ public abstract class Heuristic implements Comparator<Node> {
         }
 
         // Loop through the nested goals array to find and store goal locations
-        for(int row = 0; row < goals.size(); row++){
+        System.err.println("Max row is " + goals.length);
+        for(int row = 0; row < goals.length; row++){
             ArrayList<int[][]> currentRow = new ArrayList<>();
             pointDistances.add(currentRow);
-            for(int col = 0; col < goals.get(row).size(); col++){
-                char currentChar = goals.get(row).get(col);
+            for(int col = 0; col < goals[row].length; col++){
+                char currentChar = goals[row][col];
 
                 // Determine the "Real" distance from one point to another for every point in the array
                 /***********************************************************************************/
@@ -177,7 +178,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 }
                             }
                             //see if point to the right is anything
-                            if (currentX < walls[currentX].length-2) {
+                            if (currentX < walls[0].length-2) {
                                 Point rightPoint = new Point(currentX+1, currentY);
                                 if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
                                     frontier.add(new PointNode(currentX+1, currentY, currentDistance));
@@ -213,6 +214,7 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
+        System.err.println("DONE!");
     }
 
 
@@ -280,7 +282,7 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class AStar extends Heuristic {
-        public AStar(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
+        public AStar(Node initialState, char[][] goals, boolean[][] walls) {
             super(initialState, goals, walls);
         }
 
@@ -298,7 +300,7 @@ public abstract class Heuristic implements Comparator<Node> {
     public static class WeightedAStar extends Heuristic {
         private int W;
 
-        public WeightedAStar(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls, int W) {
+        public WeightedAStar(Node initialState, char[][] goals, boolean[][] walls, int W) {
             super(initialState, goals, walls);
             this.W = W;
         }
@@ -315,7 +317,7 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class Greedy extends Heuristic {
-        public Greedy(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
+        public Greedy(Node initialState, char[][] goals, boolean[][] walls) {
             super(initialState, goals, walls);
         }
 
