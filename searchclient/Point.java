@@ -1,5 +1,9 @@
 package searchclient;
 
+/**
+ * A simple Point class to store coordinates. 
+ * Improves code readability and modularity. 
+ */
 public class Point {
     public int x;
     public int y;

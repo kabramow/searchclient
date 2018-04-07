@@ -1,5 +1,13 @@
 package searchclient;
 
+/**
+ * The PointNode class serves to update the distances when calculating the distances in Heurstic.java.
+ * We need to be able to pass a previous distance between two points to, for instance, find that distance
+ * + one more space (in multiple directions).
+ *
+ * It is essentially just a point, but one that derives its previousDistance value from its parent, or a point
+ * explored previously in BFS/heuristic.
+ */
 public class PointNode {
     public int x;
     public int y;

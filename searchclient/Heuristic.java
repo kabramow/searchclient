@@ -22,9 +22,6 @@ public abstract class Heuristic implements Comparator<Node> {
     /** pointDistances is a representation of how we are going to store the distances between points. We will have a grid that is the 
      * same size as the level. Then for each coordinate on the grid, there will be another grid that is the same size as the
      * level grid.*/
-    // Original explanation: a grid where the values for each part of the grid are also a grid and that grid maps the distance 
-    // from the point referenced by the higher grid
-
     /*        0 1 2
               0 X + +
               1 + + +
@@ -37,7 +34,9 @@ public abstract class Heuristic implements Comparator<Node> {
               1 2 3
               2 3 4
               */
-    //ArrayList<ArrayList<int[][]>> pointDistances;
+
+    // Declare pointDistances, which will store our 'map' of the level. Now we can reference the "Real" Distance between two points
+    // without calculating each time. 
     int[][][][] pointDistances;
 
     /**
@@ -50,13 +49,12 @@ public abstract class Heuristic implements Comparator<Node> {
         goalLocations = new HashMap<>();
 
         // Instantiate pointDistances since it was only declared before the invocation of the Heuristic constructor. 
-        //pointDistances = new ArrayList<>();
         pointDistances = new int[maxRow][maxCol][maxRow][maxCol];
 
         // Here we find the longest row length of the level, through the goals-representation.
         int longestRowLength = 0;
-        for(int i = 0; i < goals.length; i++){
-            if(goals[i].length > longestRowLength) {
+        for (int i = 0; i < goals.length; i++) {
+            if (goals[i].length > longestRowLength) {
                 longestRowLength = goals[i].length;
             }
         }
@@ -76,61 +74,52 @@ public abstract class Heuristic implements Comparator<Node> {
         int WALL_INT_CONSTANT = 100000000;
 
         // Populate wall filler
-        for(int row = 0; row < rowCount; row++){
-            for(int col = 0; col < columnCount; col++){
+        for (int row = 0; row < rowCount; row++) {
+            for (int col = 0; col < columnCount; col++) {
                 wallFiller[row][col] = WALL_INT_CONSTANT;
             }
         }
 
         // Loop through the nested goals array to find and store goal locations
         //System.err.println("Max row is " + goals.length);
-        for(int row = 0; row < goals.length; row++){
-            //ArrayList<int[][]> currentRow = new ArrayList<>();
-            //pointDistances.add(currentRow);
-            for(int col = 0; col < goals[row].length; col++){
+        for (int row = 0; row < goals.length; row++) {
+            for (int col = 0; col < goals[row].length; col++) {
                 char currentChar = goals[row][col];
 
                 // Determine the "Real" distance from one point to another for every point in the array
                 /***********************************************************************************/
 
                 // If current value is a wall, then add the wall filler to pointDistances. 
-                if(walls[row][col]){
+                if (walls[row][col]) {
                     pointDistances[row][col] = wallFiller;
-                   // currentRow.add(wallFiller);
                 }
 
                 // If it is not a wall then do BFS to find distance from current point to
                 // all other non-wall points and store the results. 
-                else{
+                else {
                     // Represents the grid that is the distance between current point and other points
-                    //int[][] subGrid = new int[rowCount][columnCount];
-
-                    //currentRow.add(subGrid);
 
                     /** Start BFS from the current coordinate.
-                     * Note that the first part of this code-chunk is not performing BFS.
+                     *  Note that the first part of this code-chunk is not performing BFS.
                      */
                     // 1. First, we do a simple calculation from the 'beginning' of the grid, (0,0)
                     Queue<PointNode> frontier = new LinkedList<>();
-                    //HashSet<Point> frontierSet = new HashSet<>();
                     boolean[][] frontierSet = new boolean[maxRow][maxCol];
+
                     // keep track of points already visited
-                    //HashSet<Point> visited = new HashSet<>();
                     boolean[][] visited = new boolean[maxRow][maxCol];
 
                     // if point is not 0,0 we want to back trace already performed calculations
-                    if(row != 0 && col != 0){
-                        for(int i = 0; i <= row; i++){
-                            for(int j = 0; j < col; j++){
+                    if (row != 0 && col != 0) {
+                        for (int i = 0; i <= row; i++) {
+                            for (int j = 0; j < col; j++) {
                                 //if point is a wall add a filler max int
-                                //if(pointDistances.get(i).get(j) == wallFiller){
-                                if(pointDistances[i][j] == wallFiller){
+                                if (pointDistances[i][j] == wallFiller) {
                                     pointDistances[i][j][i][j] = WALL_INT_CONSTANT;
                                 }
                                 //otherwise see previously calculated values
                                 else {
                                     pointDistances[i][j][i][j] = distanceBetweenTwoPoints(i, j, row, col);
-                                    //visited.add(new Point(i,j));
                                     visited[i][j] = true;
                                 }
                             }
@@ -140,37 +129,37 @@ public abstract class Heuristic implements Comparator<Node> {
                     // 2. Now, fill in the rest of the grid with BFS. 
                     frontier.add(new PointNode(row, col, -1));
                     frontierSet[row][col] = true;
-                    //frontierSet.add(new Point(row, col));
                     while(!frontier.isEmpty()){
                         PointNode currentPointNode = frontier.poll();
                         int currentX = currentPointNode.getX();
                         int currentY = currentPointNode.getY();
                         Point currentPoint = new Point(currentX, currentY);
-                        //frontierSet.remove(currentPoint);
                         frontierSet[row][col] = false;
 
-                        // update grid
-                        // check if current point is a wall - if it is add wall filler value
+                        // Update grid
+                        // Check if current point is a wall - if it is add wall filler value
                         if (walls[currentX][currentY]){
                             pointDistances[row][col][currentX][currentY] = WALL_INT_CONSTANT;
                         }
-                        // if the current point isn't a wall, continue with BFS algorithm and follow those 'children'
-                        // coordinates.
+                        /**
+                         * Here, if the current point is not a wall, we continue with the BFS algorithm.
+                         *   BFS will follow the 'children' of the current coordinate points. 
+                         *   These are the points directly to the left, right, top, and bottom.
+                         */
                         else {
                             int currentDistance = currentPointNode.getPreviousDistance() + 1;
                             pointDistances[row][col][currentX][currentY] = currentDistance;
+
                             /* Add points around it to frontier if they aren't already visited or in frontier.
                              * This will be in a 4-unit 'cross' around the current point. The coordinates directly
                              * above, below, to the left, and to the right will be checked. */
+
                             // See if point above is anything
                             if (currentY > 0) {
                                 int x = currentX;
                                 int y = currentY-1;
-                                //Point abovePoint = new Point(currentX, currentY-1);
-                                //if(!visited.contains(abovePoint) && !frontierSet.contains(abovePoint)){
                                 if(!visited[x][y] && !frontierSet[x][y]){
                                     frontier.add(new PointNode(x, y, currentDistance));
-                                    //frontierSet.add(abovePoint);
                                     frontierSet[x][y] = true;
                                 }
                             }
@@ -178,11 +167,8 @@ public abstract class Heuristic implements Comparator<Node> {
                             if (currentY < walls.length-2) {
                                 int x = currentX;
                                 int y = currentY+1;
-                                //Point belowPoint = new Point(currentX, currentY+1);
-                                //if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
                                 if(!visited[x][y] && !frontierSet[x][y]){
                                     frontier.add(new PointNode(x, y, currentDistance));
-                                    //frontierSet.add(belowPoint);
                                     frontierSet[x][y] = true;
                                 }
                             }
@@ -190,8 +176,6 @@ public abstract class Heuristic implements Comparator<Node> {
                             if (currentX > 0) {
                                 int x = currentX-1;
                                 int y = currentY;
-                                //Point leftPoint = new Point(currentX-1, currentY);
-                                //if(!visited.contains(leftPoint) && !frontierSet.contains(leftPoint)){
                                 if(!visited[x][y] && !frontierSet[x][y]){
                                     frontier.add(new PointNode(currentX-1, currentY, currentDistance));
                                     frontierSet[x][y] = true;
@@ -201,8 +185,6 @@ public abstract class Heuristic implements Comparator<Node> {
                             if (currentX < walls[0].length-2) {
                                 int x = currentX+1;
                                 int y = currentY;
-                                //Point rightPoint = new Point(currentX+1, currentY);
-                                //if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
                                 if(!visited[x][y] && !frontierSet[x][y]){
                                     frontier.add(new PointNode(x, y, currentDistance));
                                     frontierSet[x][y] = true;
@@ -210,7 +192,6 @@ public abstract class Heuristic implements Comparator<Node> {
                             }
                         }
                         // Mark the current point as visited
-                        //visited.add(currentPoint);
                         visited[currentX][currentY] = true;
                     }
                 }
@@ -219,16 +200,16 @@ public abstract class Heuristic implements Comparator<Node> {
                 //The following code-chunk is finding all the locations of goals and adding to 
                 // the hashmap tracking goal locations.
                 /***********************************************************************************/
-                if(currentChar != '\u0000'){
+                if (currentChar != '\u0000') {
                     // Set array with location of point
                     Point currentLocation = new Point(row, col);
                     ArrayList<Point> currentLocationsOfGoal;
                     // If there are already locations of char listed, then find them
-                    if(goalLocations.containsKey(currentChar)){
+                    if (goalLocations.containsKey(currentChar)) {
                         currentLocationsOfGoal = goalLocations.get(currentChar);
                     }
                     // If there are not locations of char found initialize a new array containing them
-                    else{
+                    else {
                         currentLocationsOfGoal = new ArrayList<>();
                     }
                     // Then add new location found to list of locations
@@ -238,35 +219,32 @@ public abstract class Heuristic implements Comparator<Node> {
                 }
             }
         }
-        //System.err.println("DONE!");
     }
 
 
     public int h(Node n) {
-        //track goal node and closest row
+        // Track goal node and closest row
         int returnSum = 0;
         ArrayList<ArrayList<Character>> boxes = n.boxes;
-        //char[][] boxes = n.boxes;
-        for(int row = 0; row < n.maxRow; row++) {
+        for (int row = 0; row < n.maxRow; row++) {
             for (int col = 0; col < n.maxCol; col++) {
 
                 char currentChar = Character.toLowerCase(boxes.get(row).get(col));
-                //char currentChar = Character.toLowerCase(boxes[row][col]);
                 //if current value is a box
-                if(currentChar != '\u0000'){
-                    if(goalLocations.containsKey(currentChar)){
+                if (currentChar != '\u0000') {
+                    if (goalLocations.containsKey(currentChar)) {
                         //find goal locations
                         ArrayList<Point> currentGoalLocations = goalLocations.get(currentChar);
                         int closestDistance = 100000000;
                         int closestX = -10;
                         int closestY = -10;
-                        for(Point location : currentGoalLocations){
+                        for (Point location : currentGoalLocations) {
                             int goalRow = location.getX();
                             int goalCol = location.getY();
-                            //find manhattan distance
+
+                            // Here, we use the "Real" Shortest Distance, instead of the Manhattan. 
                             int distance = distanceBetweenTwoPoints(row, col, goalRow, goalCol);
-                            //= manhattanDistance(row, col, goalRow, goalCol);
-                            if(distance < closestDistance){
+                            if (distance < closestDistance) {
                                 closestDistance = distance;
                                 closestX = goalRow;
                                 closestY = goalCol;
@@ -287,7 +265,6 @@ public abstract class Heuristic implements Comparator<Node> {
 
     // Find the shortest "Real" Distance between a point and and another point. 
     public int distanceBetweenTwoPoints(int x1, int y1, int x2, int y2){
-        //return pointDistances.get(x1).get(y1)[x2][y2];
         return pointDistances[x1][y1][x2][y2];
     }
 
@@ -297,7 +274,7 @@ public abstract class Heuristic implements Comparator<Node> {
             + ") the closest goal is (" + mapper[3] + ", " + mapper[4] + ") with a distance of " + mapper[5];
     }
 
-   
+
     public abstract int f(Node n);
 
     @Override
