@@ -42,7 +42,7 @@ public abstract class Heuristic implements Comparator<Node> {
     /**
      * Constructor for Heuristic
      */
-    public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+    public Heuristic(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
         // Here's a chance to pre-process the static parts of the level.
 
         // Here we make hashmap of goals for efficient look up of nearest goal
@@ -91,7 +91,7 @@ public abstract class Heuristic implements Comparator<Node> {
                 /***********************************************************************************/
 
                 // If current value is a wall, then add the wall filler to pointDistances. 
-                if(walls.get(row).get(col)){
+                if(walls[row][col]){
                     currentRow.add(wallFiller);
                 }
 
@@ -141,11 +141,11 @@ public abstract class Heuristic implements Comparator<Node> {
 
                         // update grid
                         // check if current point is a wall - if it is add wall filler value
-                        if (walls.get(currentX).get(currentY)){
+                        if (walls[currentX][currentY]){
                             subGrid[currentX][currentY] = WALL_INT_CONSTANT;
                         }
                         // if the current point isn't a wall, continue with BFS algorithm and follow those 'children'
-                        //  coordinates.
+                        // coordinates.
                         else {
                             int currentDistance = currentPointNode.getPreviousDistance() + 1;
                             subGrid[currentX][currentY] = currentDistance;
@@ -161,7 +161,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 }
                             }
                             // See if point below is anything
-                            if (currentY < walls.size()-2) {
+                            if (currentY < walls.length-2) {
                                 Point belowPoint = new Point(currentX, currentY+1);
                                 if(!visited.contains(belowPoint) && !frontierSet.contains(belowPoint)){
                                     frontier.add(new PointNode(currentX, currentY+1, currentDistance));
@@ -177,7 +177,7 @@ public abstract class Heuristic implements Comparator<Node> {
                                 }
                             }
                             //see if point to the right is anything
-                            if (currentX < walls.get(currentX).size()-2) {
+                            if (currentX < walls[currentX].length-2) {
                                 Point rightPoint = new Point(currentX+1, currentY);
                                 if(!visited.contains(rightPoint) && !frontierSet.contains(rightPoint)){
                                     frontier.add(new PointNode(currentX+1, currentY, currentDistance));
@@ -280,7 +280,7 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class AStar extends Heuristic {
-        public AStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+        public AStar(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
             super(initialState, goals, walls);
         }
 
@@ -298,7 +298,7 @@ public abstract class Heuristic implements Comparator<Node> {
     public static class WeightedAStar extends Heuristic {
         private int W;
 
-        public WeightedAStar(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls, int W) {
+        public WeightedAStar(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls, int W) {
             super(initialState, goals, walls);
             this.W = W;
         }
@@ -315,7 +315,7 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class Greedy extends Heuristic {
-        public Greedy(Node initialState, ArrayList<ArrayList<Character>> goals, ArrayList<ArrayList<Boolean>> walls) {
+        public Greedy(Node initialState, ArrayList<ArrayList<Character>> goals, boolean[][] walls) {
             super(initialState, goals, walls);
         }
 
