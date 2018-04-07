@@ -13,6 +13,9 @@ public class Node {
 	public int agentRow;
 	public int agentCol;
 
+	public int maxRow;
+	public int maxCol;
+
 	// Arrays are indexed from the top-left of the level, with first index being row and second being column.
 	// Row 0: (0,0) (0,1) (0,2) (0,3) ...
 	// Row 1: (1,0) (1,1) (1,2) (1,3) ...
@@ -33,8 +36,10 @@ public class Node {
 	
 	private int _hash = 0;
 
-	public Node(Node parent) {
+	public Node(Node parent, int maxRow, int maxCol) {
 		this.parent = parent;
+		this.maxRow = maxRow;
+		this.maxCol = maxCol;
 		boxes = new ArrayList<>();
 		if (parent == null) {
 			this.g = 0;
@@ -53,8 +58,8 @@ public class Node {
 
 	//added goals as an argument as it is no longer an attribute of node
 	public boolean isGoalState(char[][] goals) {
-		for (int row = 1; row < goals.length - 1; row++) {
-			for (int col = 1; col < goals[0].length - 1; col++) {
+		for (int row = 1; row < maxRow - 1; row++) {
+			for (int col = 1; col < maxCol - 1; col++) {
 				char g = goals[row][col];
 				char b = Character.toLowerCase(boxes.get(row).get(col));
 				if (g > 0 && b != g) {
@@ -140,11 +145,11 @@ public class Node {
 	}
 
 	private Node ChildNode() {
-		Node copy = new Node(this);
+		Node copy = new Node(this, maxRow, maxCol);
 		copy.boxes = new ArrayList<>();
-		for(int row = 0; row < this.boxes.size(); row++){
+		for(int row = 0; row < maxRow; row++){
 			copy.boxes.add(new ArrayList<>());
-			for (int col = 0; col < this.boxes.get(row).size(); col++){
+			for (int col = 0; col < maxCol; col++){
 				copy.boxes.get(row).add(this.boxes.get(row).get(col));
 			}
 		}
@@ -193,8 +198,8 @@ public class Node {
 	}
 
 	public boolean boxesEquals(ArrayList<ArrayList<Character>> thisBoxes, ArrayList<ArrayList<Character>> otherBoxes){
-		for (int i = 0; i < thisBoxes.size(); i++) {
-			for (int j = 0; j < thisBoxes.get(i).size(); j++) {
+		for (int i = 0; i < maxRow; i++) {
+			for (int j = 0; j < maxCol; j++) {
 				if (thisBoxes.get(i).get(j) != otherBoxes.get(i).get(j)) {
 					return false;
 				}
