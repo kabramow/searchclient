@@ -21,6 +21,9 @@ public class SearchClient {
 	public boolean[][] walls;
 	public char[][] goals;
 
+	public int maxRow = 0;
+	public int maxCol = 0;
+
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
 		String line = serverMessages.readLine();
@@ -33,8 +36,7 @@ public class SearchClient {
 		//Removes trailing spaces
 		line = line.replaceAll("\\s+$", "");
 
-		int maxRow = 0;
-		int maxCol = 0;
+
 		boolean agentFound = false;
 
 
@@ -177,14 +179,14 @@ public class SearchClient {
                     strategy = new StrategyDFS();
                     break;
                 case "-astar":
-                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals, client.walls));
+                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals, client.walls, client.maxRow, client.maxCol ));
                     break;
                 case "-wastar":
                     // You're welcome to test WA* out with different values, but for the report you must at least indicate benchmarks for W = 5.
-                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, client.walls, 5));
+                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, client.walls, 5, client.maxRow, client.maxCol));
                     break;
                 case "-greedy":
-                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals, client.walls));
+                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals, client.walls, client.maxRow, client.maxCol));
                     break;
                 default:
                     strategy = new StrategyBFS();

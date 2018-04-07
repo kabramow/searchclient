@@ -37,19 +37,21 @@ public abstract class Heuristic implements Comparator<Node> {
               1 2 3
               2 3 4
               */
-    ArrayList<ArrayList<int[][]>> pointDistances;
+    //ArrayList<ArrayList<int[][]>> pointDistances;
+    int[][][][] pointDistances;
 
     /**
      * Constructor for Heuristic
      */
-    public Heuristic(Node initialState, char[][] goals, boolean[][] walls) {
+    public Heuristic(Node initialState, char[][] goals, boolean[][] walls, int maxRow, int maxCol) {
         // Here's a chance to pre-process the static parts of the level.
 
         // Here we make hashmap of goals for efficient look up of nearest goal
         goalLocations = new HashMap<>();
 
         // Instantiate pointDistances since it was only declared before the invocation of the Heuristic constructor. 
-        pointDistances = new ArrayList<>();
+        //pointDistances = new ArrayList<>();
+        pointDistances = new int[maxRow][maxCol][maxRow][maxCol];
 
         // Here we find the longest row length of the level, through the goals-representation.
         int longestRowLength = 0;
@@ -83,8 +85,8 @@ public abstract class Heuristic implements Comparator<Node> {
         // Loop through the nested goals array to find and store goal locations
         System.err.println("Max row is " + goals.length);
         for(int row = 0; row < goals.length; row++){
-            ArrayList<int[][]> currentRow = new ArrayList<>();
-            pointDistances.add(currentRow);
+            //ArrayList<int[][]> currentRow = new ArrayList<>();
+            //pointDistances.add(currentRow);
             for(int col = 0; col < goals[row].length; col++){
                 char currentChar = goals[row][col];
 
@@ -93,16 +95,17 @@ public abstract class Heuristic implements Comparator<Node> {
 
                 // If current value is a wall, then add the wall filler to pointDistances. 
                 if(walls[row][col]){
-                    currentRow.add(wallFiller);
+                    pointDistances[row][col] = wallFiller;
+                   // currentRow.add(wallFiller);
                 }
 
                 // If it is not a wall then do BFS to find distance from current point to
                 // all other non-wall points and store the results. 
                 else{
                     // Represents the grid that is the distance between current point and other points
-                    int[][] subGrid = new int[rowCount][columnCount];
+                    //int[][] subGrid = new int[rowCount][columnCount];
 
-                    currentRow.add(subGrid);
+                    //currentRow.add(subGrid);
 
                     /** Start BFS from the current coordinate.
                      * Note that the first part of this code-chunk is not performing BFS.
@@ -118,12 +121,13 @@ public abstract class Heuristic implements Comparator<Node> {
                         for(int i = 0; i <= row; i++){
                             for(int j = 0; j < col; j++){
                                 //if point is a wall add a filler max int
-                                if(pointDistances.get(i).get(j) == wallFiller){
-                                    subGrid[i][j] = WALL_INT_CONSTANT;
+                                //if(pointDistances.get(i).get(j) == wallFiller){
+                                if(pointDistances[i][j] == wallFiller){
+                                    pointDistances[i][j][i][j] = WALL_INT_CONSTANT;
                                 }
                                 //otherwise see previously calculated values
                                 else {
-                                    subGrid[i][j] = distanceBetweenTwoPoints(i, j, row, col);
+                                    pointDistances[i][j][i][j] = distanceBetweenTwoPoints(i, j, row, col);
                                     visited.add(new Point(i,j));
                                 }
                             }
@@ -143,13 +147,13 @@ public abstract class Heuristic implements Comparator<Node> {
                         // update grid
                         // check if current point is a wall - if it is add wall filler value
                         if (walls[currentX][currentY]){
-                            subGrid[currentX][currentY] = WALL_INT_CONSTANT;
+                            pointDistances[row][col][currentX][currentY] = WALL_INT_CONSTANT;
                         }
                         // if the current point isn't a wall, continue with BFS algorithm and follow those 'children'
                         // coordinates.
                         else {
                             int currentDistance = currentPointNode.getPreviousDistance() + 1;
-                            subGrid[currentX][currentY] = currentDistance;
+                            pointDistances[row][col][currentX][currentY] = currentDistance;
                             /* Add points around it to frontier if they aren't already visited or in frontier.
                              * This will be in a 4-unit 'cross' around the current point. The coordinates directly
                              * above, below, to the left, and to the right will be checked. */
@@ -263,7 +267,8 @@ public abstract class Heuristic implements Comparator<Node> {
 
     // Find the shortest "Real" Distance between a point and and another point. 
     public int distanceBetweenTwoPoints(int x1, int y1, int x2, int y2){
-        return pointDistances.get(x1).get(y1)[x2][y2];
+        //return pointDistances.get(x1).get(y1)[x2][y2];
+        return pointDistances[x1][y1][x2][y2];
     }
 
     // Simply a debugMapper. 
@@ -281,8 +286,8 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class AStar extends Heuristic {
-        public AStar(Node initialState, char[][] goals, boolean[][] walls) {
-            super(initialState, goals, walls);
+        public AStar(Node initialState, char[][] goals, boolean[][] walls, int maxRow, int maxCol) {
+            super(initialState, goals, walls, maxRow, maxCol);
         }
 
         @Override
@@ -299,8 +304,8 @@ public abstract class Heuristic implements Comparator<Node> {
     public static class WeightedAStar extends Heuristic {
         private int W;
 
-        public WeightedAStar(Node initialState, char[][] goals, boolean[][] walls, int W) {
-            super(initialState, goals, walls);
+        public WeightedAStar(Node initialState, char[][] goals, boolean[][] walls, int W, int maxRow, int maxCol) {
+            super(initialState, goals, walls, maxRow, maxCol);
             this.W = W;
         }
 
@@ -316,8 +321,8 @@ public abstract class Heuristic implements Comparator<Node> {
     }
 
     public static class Greedy extends Heuristic {
-        public Greedy(Node initialState, char[][] goals, boolean[][] walls) {
-            super(initialState, goals, walls);
+        public Greedy(Node initialState, char[][] goals, boolean[][] walls, int maxRow, int maxCol) {
+            super(initialState, goals, walls, maxRow, maxCol);
         }
 
         @Override
