@@ -16,8 +16,13 @@ public class SearchClient {
         /* Refactored walls and goals to SearchClient, instead of Node so that 
          * they would not be regenerated for every node created <saves memory>
          */
-	public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
-	public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
+	//public ArrayList<ArrayList<Boolean>> walls = new ArrayList<>();
+	//public ArrayList<ArrayList<Character>> goals = new ArrayList<>();
+	public boolean[][] walls;
+	public char[][] goals;
+
+	public int maxRow = 0;
+	public int maxCol = 0;
 
 	public SearchClient(BufferedReader serverMessages) throws Exception {
 		// Read lines specifying colors
@@ -28,32 +33,54 @@ public class SearchClient {
 			System.exit(1);
 		}
 
-		int row = 0;
-		boolean agentFound = false;
-
-		this.initialState = new Node(null);
-
 		//Removes trailing spaces
 		line = line.replaceAll("\\s+$", "");
 
+
+		boolean agentFound = false;
+
+
+
+		ArrayList<String> readLines = new ArrayList<>();
+		readLines.add(line);
+
 		while (!line.equals("")) {
-			walls.add(new ArrayList<Boolean>());
-			goals.add(new ArrayList<Character>());
+			line = serverMessages.readLine();
+			line = line.replaceAll("\\s+$", "");
+			maxRow++;
+			readLines.add(line);
+			int lineLen = line.length();
+			if(lineLen > maxCol){
+				maxCol = lineLen;
+			}
+		}
+
+		walls = new boolean[maxRow][maxCol];
+		goals = new char[maxRow][maxCol];
+		this.initialState = new Node(null, maxRow, maxCol);
+
+		// look through lines read again
+		for (int row = 0; row < readLines.size(); row++) {
+			//System.err.println("Read lines is " + readLines.size());
+			String currentLine = readLines.get(row);
+			//System.err.println("current line is " + currentLine);
 			this.initialState.boxes.add(new ArrayList<>());
-			for (int col = 0; col < line.length(); col++) {
-				char chr = line.charAt(col);
+			for (int col = 0; col < currentLine.length(); col++) {
+				//System.err.println("line len is " + currentLine.length());
+				char chr = currentLine.charAt(col);
 
 				if (chr == '+') { // Wall.
 					/* Changed from this.intialstate.walls because walls is no longer an attribute of initalstate
-                                         * Changed walls to nested arraylist 
+                                         * Changed walls to nested arraylist
                                          * --> Because they're arraylists, instead of a 2d array, we just add new elements.
                                          */
-					walls.get(row).add(true); 
-					goals.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					walls[row][col] = true;
+					//goals[row][col] = '\u0000';
 					this.initialState.boxes.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					//this.initialState.boxes[row][col] = '\u0000';
 				}
 				else {
-					walls.get(row).add(false);
+					//walls[row][col] = false;
 
 					if ('0' <= chr && chr <= '9') { // Agent.
 						if (agentFound) {
@@ -63,28 +90,40 @@ public class SearchClient {
 						agentFound = true;
 						this.initialState.agentRow = row;
 						this.initialState.agentCol = col;
-						goals.get(row).add('\u0000');
-						this.initialState.boxes.get(row).add('\u0000');
+						goals[row][col] = '\u0000';
+						initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
 						this.initialState.boxes.get(row).add(chr);
-						goals.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = chr;
+						//goals[row][col] = '\u0000';
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
-						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
-						goals.get(row).add(chr);
+						goals[row][col] = chr;
 						this.initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else if (chr == ' ') {
 						// Free space.
-						goals.get(row).add('\u0000');
+						//goals[row][col] = '\u0000';
 						this.initialState.boxes.get(row).add('\u0000');
+						//this.initialState.boxes[row][col] = '\u0000';
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
 					}
 				}
 			}
-			line = serverMessages.readLine();
-			line = line.replaceAll("\\s+$", "");
-			row++;
+		}
+
+		for (int row = 0; row < walls.length; row++) {
+			for (int col = 0; col < walls[0].length; col++) {
+				if(walls[row][col]){
+					System.err.print("*");
+				}
+				else {
+					System.err.print("+");
+				}
+			}
+			System.err.println();
 		}
 
 	}
@@ -140,14 +179,14 @@ public class SearchClient {
                     strategy = new StrategyDFS();
                     break;
                 case "-astar":
-                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals, client.walls));
+                    strategy = new StrategyBestFirst(new AStar(client.initialState, client.goals, client.walls, client.maxRow, client.maxCol ));
                     break;
                 case "-wastar":
                     // You're welcome to test WA* out with different values, but for the report you must at least indicate benchmarks for W = 5.
-                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, client.walls, 5));
+                    strategy = new StrategyBestFirst(new WeightedAStar(client.initialState, client.goals, client.walls, 5, client.maxRow, client.maxCol));
                     break;
                 case "-greedy":
-                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals, client.walls));
+                    strategy = new StrategyBestFirst(new Greedy(client.initialState, client.goals, client.walls, client.maxRow, client.maxCol));
                     break;
                 default:
                     strategy = new StrategyBFS();

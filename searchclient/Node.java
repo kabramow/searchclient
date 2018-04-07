@@ -1,5 +1,6 @@
 package searchclient;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 import searchclient.Command.Type;
@@ -13,6 +14,9 @@ public class Node {
 	public int agentRow;
 	public int agentCol;
 
+	public int maxRow;
+	public int maxCol;
+
 	// Arrays are indexed from the top-left of the level, with first index being row and second being column.
 	// Row 0: (0,0) (0,1) (0,2) (0,3) ...
 	// Row 1: (1,0) (1,1) (1,2) (1,3) ...
@@ -25,6 +29,7 @@ public class Node {
 
 	//got rid of goals and walls as attributes of node and moved them to attributes of search client
 	public ArrayList<ArrayList<Character>> boxes;
+	//public char[][] boxes;
 
 	public Node parent;
 	public Command action;
@@ -33,8 +38,11 @@ public class Node {
 	
 	private int _hash = 0;
 
-	public Node(Node parent) {
+	public Node(Node parent, int maxRow, int maxCol) {
 		this.parent = parent;
+		this.maxRow = maxRow;
+		this.maxCol = maxCol;
+		//boxes = new char[maxRow][maxCol];
 		boxes = new ArrayList<>();
 		if (parent == null) {
 			this.g = 0;
@@ -52,11 +60,12 @@ public class Node {
 	}
 
 	//added goals as an argument as it is no longer an attribute of node
-	public boolean isGoalState(ArrayList<ArrayList<Character>> goals) {
-		for (int row = 1; row < goals.size() - 1; row++) {
-			for (int col = 1; col < goals.get(0).size() - 1; col++) {
-				char g = goals.get(row).get(col);
+	public boolean isGoalState(char[][] goals) {
+		for (int row = 1; row < maxRow - 1; row++) {
+			for (int col = 1; col < maxCol - 1; col++) {
+				char g = goals[row][col];
 				char b = Character.toLowerCase(boxes.get(row).get(col));
+				//char b = Character.toLowerCase(boxes[row][col]);
 				if (g > 0 && b != g) {
 					return false;
 				}
@@ -68,7 +77,7 @@ public class Node {
         /* Added walls as an argument to 'getExpandedNodes' since walls is no longer an
          * attribute of the Node class and is required for the method.
          */ 
-	public ArrayList<Node> getExpandedNodes(ArrayList<ArrayList<Boolean>> walls) {
+	public ArrayList<Node> getExpandedNodes(boolean[][] walls) {
 		ArrayList<Node> expandedNodes = new ArrayList<Node>(Command.EVERY.length);
 		for (Command c : Command.EVERY) {
 			// Determine applicability of action
@@ -99,10 +108,12 @@ public class Node {
 						n.agentCol = newAgentCol;
 
                                                 // Value to set 
+						//char newColVal = this.boxes[newAgentRow][newAgentCol];
 						char newColVal = this.boxes.get(newAgentRow).get(newAgentCol);
-						// set boxes[newBoxRow][newBoxCol] = newColVal
-                                                n.boxes.get(newBoxRow).set(newBoxCol, newColVal);
+						n.boxes.get(newBoxRow).set(newBoxCol, newColVal);
+						//n.boxes[newBoxRow][newBoxCol] = newColVal;
 						n.boxes.get(newAgentRow).set(newAgentCol,'\u0000');
+						//n.boxes[newAgentRow][newAgentCol] = '\u0000';
 						expandedNodes.add(n);
 					}
 				}
@@ -120,7 +131,9 @@ public class Node {
 						n.agentCol = newAgentCol;
                                                 // Do what the original did, but using our ArrayList structure.
 						n.boxes.get(this.agentRow).set(this.agentCol, this.boxes.get(boxRow).get(boxCol));
+						//n.boxes[this.agentRow][this.agentCol] = this.boxes[boxRow][boxCol];
 						n.boxes.get(boxRow).set(boxCol,'\u0000');
+						//n.boxes[boxRow][boxCol] = '\u0000';
 						expandedNodes.add(n);
 					}
 				}
@@ -131,22 +144,25 @@ public class Node {
 	}
 
 	// Added walls as argument because walls is no longer an attribute of node
-	private boolean cellIsFree(int row, int col, ArrayList<ArrayList<Boolean>> walls) {
-		return !walls.get(row).get(col) && this.boxes.get(row).get(col) == 0;
+	private boolean cellIsFree(int row, int col, boolean[][] walls) {
+		return !walls[row][col] && this.boxes.get(row).get(col) == 0;
+		//return !walls[row][col] && this.boxes[row][col] == 0;
 	}
 
 	private boolean boxAt(int row, int col) {
 		return this.boxes.get(row).get(col) > 0;
+		//return this.boxes[row][col] > 0;
 	}
 
 	private Node ChildNode() {
-		Node copy = new Node(this);
+		Node copy = new Node(this, maxRow, maxCol);
 		copy.boxes = new ArrayList<>();
-		for(int row = 0; row < this.boxes.size(); row++){
+		for(int row = 0; row < maxRow; row++){
 			copy.boxes.add(new ArrayList<>());
-			for (int col = 0; col < this.boxes.get(row).size(); col++){
+			for (int col = 0; col < maxCol; col++){
 				copy.boxes.get(row).add(this.boxes.get(row).get(col));
-			}
+				//copy.boxes[row][col] =  this.boxes[row][col];
+ 			}
 		}
 
 		return copy;
@@ -193,9 +209,11 @@ public class Node {
 	}
 
 	public boolean boxesEquals(ArrayList<ArrayList<Character>> thisBoxes, ArrayList<ArrayList<Character>> otherBoxes){
-		for (int i = 0; i < thisBoxes.size(); i++) {
-			for (int j = 0; j < thisBoxes.get(i).size(); j++) {
-				if (thisBoxes.get(i).get(j) != otherBoxes.get(i).get(j)) {
+	//public boolean boxesEquals(char[][] thisBoxes, char[][]  otherBoxes){
+		for (int i = 0; i < maxRow; i++) {
+			for (int j = 0; j < maxCol; j++) {
+				if(thisBoxes.get(i).get(j) != otherBoxes.get(i).get(j)) {
+				//if (thisBoxes[i][j] != otherBoxes[i][j]) {
 					return false;
 				}
 			}
@@ -203,33 +221,17 @@ public class Node {
 		return true;
 	}
 
-        /**
-         * A simple function for printing out the level grid.  
-         */
-	// Since toString was already being weird for a toString (ie not following normal protocol)
-	// we got rid of the override and pass walls and goals as arguments so it prints nicely
-	public String prettyPrint(boolean[][] walls, char[][] goals) {
-		StringBuilder s = new StringBuilder();
-		for (int row = 0; row < 70; row++) {
-			if (!walls[row][0]) {
-				break;
-			}
-			for (int col = 0; col < 70; col++) {
-				if (this.boxes.get(row).get(col) > 0) {
-					s.append(this.boxes.get(row).get(col));
-				} else if (goals[row][col] > 0) {
-					s.append(goals[row][col]);
-				} else if (walls[row][col]) {
-					s.append("+");
-				} else if (row == this.agentRow && col == this.agentCol) {
-					s.append("0");
-				} else {
-					s.append(" ");
-				}
-			}
-			s.append("\n");
-		}
-		return s.toString();
+	@Override
+	public String toString() {
+		return "Node{" +
+				"agentRow=" + agentRow +
+				", agentCol=" + agentCol +
+				", maxRow=" + maxRow +
+				", maxCol=" + maxCol +
+				//", boxes=" + Arrays.toString(boxes) +
+				", parent=" + parent +
+				", action=" + action +
+				", g=" + g +
+				'}';
 	}
-
 }
