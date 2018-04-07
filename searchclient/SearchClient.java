@@ -43,9 +43,7 @@ public class SearchClient {
 		readLines.add(line);
 
 		while (!line.equals("")) {
-			//walls.add(new ArrayList<Boolean>());
-			//goals.add(new ArrayList<>());
-			this.initialState.boxes.add(new ArrayList<>());
+			//this.initialState.boxes.add(new ArrayList<>());
 			for (int col = 0; col < line.length(); col++) {
 				char chr = line.charAt(col);
 
@@ -56,7 +54,7 @@ public class SearchClient {
                                          */
 					//walls.get(maxRow).add(true);
 					//goals.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
-					this.initialState.boxes.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					//this.initialState.boxes.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
 				}
 				else {
 					//walls.get(maxRow).add(false);
@@ -70,18 +68,18 @@ public class SearchClient {
 						this.initialState.agentRow = maxRow;
 						this.initialState.agentCol = col;
 						//goals.get(maxRow).add('\u0000');
-						this.initialState.boxes.get(maxRow).add('\u0000');
+						//this.initialState.boxes.get(maxRow).add('\u0000');
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
-						this.initialState.boxes.get(maxRow).add(chr);
+						//this.initialState.boxes.get(maxRow).add(chr);
 						//goals.get(maxRow).add('\u0000');
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
 						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
 						//goals.get(maxRow).add(chr);
-						this.initialState.boxes.get(maxRow).add('\u0000');
+						//this.initialState.boxes.get(maxRow).add('\u0000');
 					} else if (chr == ' ') {
 						// Free space.
 						//goals.get(maxRow).add('\u0000');
-						this.initialState.boxes.get(maxRow).add('\u0000');
+						//this.initialState.boxes.get(maxRow).add('\u0000');
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
@@ -106,7 +104,6 @@ public class SearchClient {
 			//System.err.println("Read lines is " + readLines.size());
 			String currentLine = readLines.get(row);
 			//System.err.println("current line is " + currentLine);
-			//walls.add(new ArrayList<Boolean>());
 			this.initialState.boxes.add(new ArrayList<>());
 			for (int col = 0; col < currentLine.length(); col++) {
 				//System.err.println("line len is " + currentLine.length());
@@ -118,38 +115,32 @@ public class SearchClient {
                                          * --> Because they're arraylists, instead of a 2d array, we just add new elements.
                                          */
 					walls[row][col] = true;
-					goals[row][col] = '\u0000';
-					//goals.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
-					//this.initialState.boxes.get(maxRow).add('\u0000'); // Use null character value, necessary because of ArrayList change.
+					//goals[row][col] = '\u0000';
+					this.initialState.boxes.get(row).add('\u0000'); // Use null character value, necessary because of ArrayList change.
 				}
 				else {
-					walls[row][col] = false;
+					//walls[row][col] = false;
 
 					if ('0' <= chr && chr <= '9') { // Agent.
 						/*if (agentFound) {
 							System.err.println("Error, not a single agent level");
 							System.exit(1);
-						}*/
-						//agentFound = true;
-						/*this.initialState.agentRow = maxRow;
+						}
+						agentFound = true;
+						this.initialState.agentRow = maxRow;
 						this.initialState.agentCol = col;*/
-						//goals.get(maxRow).add('\u0000');
-						goals[row][col] = '\u0000';
-						//initialState.boxes.get(maxRow).add('\u0000');
+						//goals[row][col] = '\u0000';
+						initialState.boxes.get(row).add('\u0000');
 					} else if ('A' <= chr && chr <= 'Z') { // Box.
-						/*this.initialState.boxes.get(maxRow).add(chr);
-						goals.get(maxRow).add('\u0000');*/
-						goals[row][col] = '\u0000';
+						this.initialState.boxes.get(row).add(chr);
+						//goals[row][col] = '\u0000';
 					} else if ('a' <= chr && chr <= 'z') { // Goal.
-						//changed this.initialState.goals to this.goals because goals is no longer an attribute of node
 						goals[row][col] = chr;
-						/*goals.get(maxRow).add(chr);
-						this.initialState.boxes.get(maxRow).add('\u0000');*/
+						this.initialState.boxes.get(row).add('\u0000');
 					} else if (chr == ' ') {
 						// Free space.
-						goals[row][col] = '\u0000';
-						/*goals.get(maxRow).add('\u0000');
-						this.initialState.boxes.get(maxRow).add('\u0000');*/
+						//goals[row][col] = '\u0000';
+						this.initialState.boxes.get(row).add('\u0000');
 					} else {
 						System.err.println("Error, read invalid level character: " + (int) chr);
 						System.exit(1);
